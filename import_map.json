@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "harmony": "https://code.harmony.rocks/v2.6.0/mod.ts"
+  }
+}
