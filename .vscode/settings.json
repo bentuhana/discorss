@@ -1,0 +1,16 @@
+{
+  "deno.enable": true,
+  "editor.formatOnSave": true,
+  "[typescript][json][jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[ignore][properties]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[dockerfile][dockercompose]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  }
+}
