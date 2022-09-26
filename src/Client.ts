@@ -3,9 +3,12 @@ import {
   ApplicationCommandPartial,
   Client,
   ClientOptions,
+  customValidation,
   event,
   slash,
 } from 'harmony';
+
+import { isValidRSSFeed, isValidURL } from './utils.ts';
 
 export class DiscoRSSClient extends Client {
   commands: ApplicationCommandPartial[];
@@ -16,24 +19,35 @@ export class DiscoRSSClient extends Client {
   }
 
   @event()
-  async ready() {
+  ready() {
     console.log(
       `%cLogged in as ${this.user?.tag}!`,
       'background-color: green;',
     );
 
-    const currentCommands = await this.interactions.commands.all();
-    currentCommands.size < this.commands.length &&
-      this.interactions.commands.bulkEdit(this.commands);
+    this.interactions.commands.bulkEdit(this.commands); // will update this soon
   }
 
   @slash()
-  test(d: ApplicationCommandInteraction) {
-    d.reply('test!');
+  latency(d: ApplicationCommandInteraction) {
+    d.reply(`Gateway latency: ${this.gateway.ping.toString()}`);
   }
 
   @slash()
-  test2(d: ApplicationCommandInteraction) {
-    d.reply(d.option('text'));
+  @customValidation(
+    (i) => isValidURL(i.option<string>('url')),
+    'Input should be an URL.',
+  )
+  async add(d: ApplicationCommandInteraction) {
+    const URL = d.option<string>('url');
+    const response = await fetch(URL);
+
+    if (
+      !isValidRSSFeed(response.headers)
+    ) {
+      d.reply('This URL is not an RSS feed.');
+    } else {
+      d.reply('Valid RSS URL!');
+    }
   }
 }

@@ -4,16 +4,16 @@ import {
 } from 'harmony';
 
 const commands: ApplicationCommandPartial[] = [{
-  name: 'test',
-  description: 'test',
+  name: 'latency',
+  description: 'Look what gateway latency is.',
 }, {
-  name: 'test2',
-  description: 'test2',
+  name: 'add',
+  description: 'Add RSS feed to list.',
   options: [{
-    name: 'text',
-    description: 'text',
-    required: true,
+    name: 'url',
+    description: 'RSS feed URL',
     type: ApplicationCommandOptionType.STRING,
+    required: true,
   }],
 }];
 
