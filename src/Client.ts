@@ -38,16 +38,11 @@ export class DiscoRSSClient extends Client {
     (i) => isValidURL(i.option<string>('url')),
     'Input should be an URL.',
   )
-  async add(d: ApplicationCommandInteraction) {
-    const URL = d.option<string>('url');
-    const response = await fetch(URL);
-
-    if (
-      !isValidRSSFeed(response.headers)
-    ) {
-      d.reply('This URL is not an RSS feed.');
-    } else {
-      d.reply('Valid RSS URL!');
-    }
+  @customValidation(
+    (i) => isValidRSSFeed(i.option<string>('url')),
+    'This URL is not an RSS feed.',
+  )
+  add(d: ApplicationCommandInteraction) {
+    d.reply('Valid URL and RSS feed!');
   }
 }

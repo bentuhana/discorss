@@ -1,4 +1,5 @@
-export const isValidRSSFeed = (headers: Headers) => {
+export const isValidRSSFeed = async (url: string) => {
+  const { headers } = await fetch(url);
   return headers.get('content-type')?.includes('application/rss+xml')
     ? true
     : false;
