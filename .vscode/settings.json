@@ -7,13 +7,7 @@
   "[json][jsonc][markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[ignore][properties]": {
+  "[ignore][properties][dockerfile]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[dockerfile][dockercompose]": {
-    "editor.quickSuggestions": {
-      "strings": true
-    },
-    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
   }
 }
