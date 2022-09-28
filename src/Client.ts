@@ -7,9 +7,9 @@ import {
   event,
   slash,
 } from 'harmony';
-import { RSSManager } from './RSSManager.ts';
 
-import { isValidRSSFeed, isValidURL } from './utils.ts';
+import { RSSManager } from './RSSManager.ts';
+import { validators } from './utils.ts';
 
 export class DiscoRSSClient extends Client {
   commands: ApplicationCommandPartial[];
@@ -48,11 +48,11 @@ export class DiscoRSSClient extends Client {
 
   @slash()
   @customValidation(
-    (i) => isValidURL(i.option<string>('url')),
+    (i) => validators.isValidURL(i.option<string>('url')),
     'Input should be an URL.',
   )
   @customValidation(
-    (i) => isValidRSSFeed(i.option<string>('url')),
+    (i) => validators.isValidRSSFeed(i.option<string>('url')),
     'This URL is not an RSS feed.',
   )
   subscribe(d: ApplicationCommandInteraction) {
@@ -65,11 +65,11 @@ export class DiscoRSSClient extends Client {
 
   @slash()
   @customValidation(
-    (i) => isValidURL(i.option<string>('url')),
+    (i) => validators.isValidURL(i.option<string>('url')),
     'Input should be an URL.',
   )
   @customValidation(
-    (i) => isValidRSSFeed(i.option<string>('url')),
+    (i) => validators.isValidRSSFeed(i.option<string>('url')),
     'This URL is not an RSS feed.',
   )
   unsubscribe(d: ApplicationCommandInteraction) {
