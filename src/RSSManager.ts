@@ -64,7 +64,7 @@ export class RSSManager extends EventEmitter<Events> {
       this.emit('subscription', url);
       return Deno.writeFile(
         this.feedsList,
-        encoder.encode(JSON.stringify(feedsList, null, 2)),
+        encoder.encode(JSON.stringify(feedsList)),
       ).then(() => Promise.resolve('Added to feeds list.'));
     }
   }
@@ -82,7 +82,7 @@ export class RSSManager extends EventEmitter<Events> {
       this.emit('unsubscription', url);
       return Deno.writeFile(
         this.feedsList,
-        encoder.encode(JSON.stringify(feedsList, null, 2)),
+        encoder.encode(JSON.stringify(feedsList)),
       ).then(() => Promise.resolve('Removed feed from list.'));
     }
   }
