@@ -8,36 +8,35 @@ import {
   slash,
 } from 'harmony';
 
-import { RSSManager } from './RSSManager.ts';
+import { RSSManager, type RSSManagerOptions } from './RSSManager.ts';
 import { validators } from './utils.ts';
 
 export class DiscoRSSClient extends Client {
   commands: ApplicationCommandPartial[];
   rssManager: RSSManager;
+  rssCheckerId!: number;
 
-  constructor(options: ClientOptions, commands: ApplicationCommandPartial[]) {
-    super(options);
+  constructor(
+    clientOptions: ClientOptions,
+    rssManagerOptions: RSSManagerOptions | null,
+    commands: ApplicationCommandPartial[],
+  ) {
+    super(clientOptions);
 
     this.commands = commands;
-    this.rssManager = new RSSManager();
+    this.rssManager = new RSSManager(rssManagerOptions);
   }
 
   @event()
   ready() {
-    console.log(
-      `%cLogged in as ${this.user?.tag}!`,
-      'background-color: green;',
-    );
+    console.log(`Logged in as ${this.user?.tag}!`);
 
     this.interactions.commands.bulkEdit(this.commands); // will update this soon
+    this.rssCheckerId = this.rssManager.startCheck();
 
     this.rssManager.on(
-      'subscription',
-      (url) => console.log(`Subscribed to ${url}`),
-    );
-    this.rssManager.on(
-      'unsubscription',
-      (url) => console.log(`Unsubscribed from ${url}`),
+      'newPost',
+      (p) => this.channels.sendMessage('1024757600312639518', p.title.value),
     );
   }
 
@@ -48,19 +47,14 @@ export class DiscoRSSClient extends Client {
 
   @slash()
   @customValidation(
-    (i) => validators.isValidURL(i.option<string>('url')),
-    'Input should be an URL.',
+    (i) => validators.isMyOwner(i.client, i.user.id),
+    'You\'re not my author.',
   )
-  @customValidation(
-    (i) => validators.isValidRSSFeed(i.option<string>('url')),
-    'This URL is not an RSS feed.',
-  )
-  subscribe(d: ApplicationCommandInteraction) {
-    const feedURL = d.option<string>('url');
+  async eval(i: ApplicationCommandInteraction) {
+    const code = i.option<string>('code'),
+      evaluated = await eval(`(async () => {${code}})()`);
 
-    this.rssManager.subscribeTo(feedURL).then(() =>
-      d.reply(`Subscribed to ${feedURL}`)
-    ).catch(() => d.reply(`Already subscribed to ${feedURL}`));
+    i.reply(Deno.inspect(evaluated));
   }
 
   @slash()
@@ -72,11 +66,40 @@ export class DiscoRSSClient extends Client {
     (i) => validators.isValidRSSFeed(i.option<string>('url')),
     'This URL is not an RSS feed.',
   )
-  unsubscribe(d: ApplicationCommandInteraction) {
-    const feedURL = d.option<string>('url');
+  subscribe(i: ApplicationCommandInteraction) {
+    const feedURL = i.option<string>('url');
+
+    this.rssManager.subscribeTo(feedURL).then(() =>
+      i.reply(`Subscribed to ${feedURL}`)
+    ).catch(() => i.reply(`Already subscribed to ${feedURL}`));
+  }
+
+  @slash()
+  @customValidation(
+    (i) => validators.isValidURL(i.option<string>('url')),
+    'Input should be an URL.',
+  )
+  @customValidation(
+    (i) => validators.isValidRSSFeed(i.option<string>('url')),
+    'This URL is not an RSS feed.',
+  )
+  unsubscribe(i: ApplicationCommandInteraction) {
+    const feedURL = i.option<string>('url');
 
     this.rssManager.unsubscribeFrom(feedURL).then(() =>
-      d.reply(`Unsubscribed from ${feedURL}`)
-    ).catch(() => d.reply(`Not subscribed to ${feedURL}.`));
+      i.reply(`Unsubscribed from ${feedURL}`)
+    ).catch(() => i.reply(`Not subscribed to ${feedURL}.`));
+  }
+
+  @slash()
+  start(i: ApplicationCommandInteraction) {
+    this.rssCheckerId = this.rssManager.startCheck();
+    i.reply('Started.');
+  }
+
+  @slash()
+  stop(i: ApplicationCommandInteraction) {
+    this.rssManager.stopCheck(this.rssCheckerId);
+    i.reply('Stopped.');
   }
 }

@@ -1,13 +1,12 @@
 import { EventEmitter } from 'event';
-import { type Feed } from 'rss';
+import { type Feed, parseFeed } from 'rss';
 
 import * as path from 'path';
 
+import { utils } from './utils.ts';
+
 const metaURL = new URL(import.meta.url).pathname;
 const __dirname = metaURL.slice(0, metaURL.lastIndexOf('/'));
-
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 
 type Events = {
   subscription: [string];
@@ -15,15 +14,17 @@ type Events = {
   newPost: [Feed];
 };
 
+export interface RSSManagerOptions {
+  folder?: string;
+  checkInterval?: number;
+}
+
 export class RSSManager extends EventEmitter<Events> {
   folder: string;
   feedsList: string;
   checkInterval: number;
 
-  constructor(options?: {
-    folder?: string;
-    checkInterval?: number;
-  }) {
+  constructor(options?: RSSManagerOptions | null) {
     super();
 
     this.folder = options?.folder
@@ -36,20 +37,26 @@ export class RSSManager extends EventEmitter<Events> {
       .catch((err) => {
         if (err instanceof Deno.errors.NotFound) {
           Deno.mkdir(this.folder).then(() =>
-            Deno.writeFile(this.feedsList, encoder.encode('[]'))
+            Deno.writeFile(this.feedsList, utils.encode('[]'))
           );
         }
       });
   }
 
   private URLToHostname = (url: string) => {
-    const trimURLRegEx = /https?:\/\/([-a-zA-Z0-9@:%._\+~#=]{1,256})\/?/; // i suck at regex
-    return trimURLRegEx.exec(url)?.[1];
+    return new URL(url).hostname;
   };
 
+  private async getSubscriptions() {
+    const data = await Deno.readFile(this.feedsList),
+      feeds: string[] = JSON.parse(utils.decode(data));
+
+    return feeds;
+  }
+
   async subscribeTo(url: string) {
-    let feedsList = JSON.parse(
-      decoder.decode(await Deno.readFile(this.feedsList)),
+    let feedsList: string[] = JSON.parse(
+      utils.decode(await Deno.readFile(this.feedsList)),
     );
 
     if (!feedsList) {
@@ -64,14 +71,14 @@ export class RSSManager extends EventEmitter<Events> {
       this.emit('subscription', url);
       return Deno.writeFile(
         this.feedsList,
-        encoder.encode(JSON.stringify(feedsList)),
+        utils.encode(JSON.stringify(feedsList)),
       ).then(() => Promise.resolve('Added to feeds list.'));
     }
   }
 
   async unsubscribeFrom(url: string) {
-    let feedsList = JSON.parse(
-      decoder.decode(await Deno.readFile(this.feedsList)),
+    let feedsList: string[] = JSON.parse(
+      utils.decode(await Deno.readFile(this.feedsList)),
     );
 
     if (!feedsList || !feedsList.includes(url)) {
@@ -82,8 +89,40 @@ export class RSSManager extends EventEmitter<Events> {
       this.emit('unsubscription', url);
       return Deno.writeFile(
         this.feedsList,
-        encoder.encode(JSON.stringify(feedsList)),
+        utils.encode(JSON.stringify(feedsList)),
       ).then(() => Promise.resolve('Removed feed from list.'));
     }
+  }
+
+  startCheck() {
+    return setInterval(async () => {
+      const feeds = await this.getSubscriptions();
+
+      feeds.forEach(async (feed) => {
+        const resp = await fetch(feed),
+          rssXML = await resp.text(),
+          feedURLHostname = this.URLToHostname(feed);
+
+        const currentXML = utils.decode(
+            await Deno.readFile(
+              `${this.folder}/${feedURLHostname}.xml`,
+            ).catch(() => utils.encode('')),
+          ),
+          feedRSSXMl = await parseFeed(rssXML);
+
+        if (currentXML.length !== rssXML.length) {
+          this.emit('newPost', feedRSSXMl);
+          await Deno.writeFile(
+            `${this.folder}/${feedURLHostname}.xml`,
+            utils.encode(rssXML),
+          );
+        }
+      });
+    }, this.checkInterval);
+  }
+
+  stopCheck(intervalId: number) {
+    clearInterval(intervalId);
+    return 'Stopped checking feeds.';
   }
 }

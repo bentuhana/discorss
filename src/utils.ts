@@ -1,3 +1,5 @@
+import { type Client } from 'harmony';
+
 export const validators = {
   async isValidRSSFeed(url: string) {
     const { headers } = await fetch(url);
@@ -6,9 +8,24 @@ export const validators = {
       : false;
   },
   isValidURL(url: string) {
-    const URLRegEx =
-      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/i;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  async isMyOwner(client: Client, senderId: string) {
+    const ownerId = (await client.fetchApplication()).owner!.id;
+    return ownerId === senderId ? true : false;
+  },
+};
 
-    return URLRegEx.test(url) ? true : false;
+export const utils = {
+  encode(input: string) {
+    return new TextEncoder().encode(input);
+  },
+  decode(input: BufferSource) {
+    return new TextDecoder().decode(input);
   },
 };
