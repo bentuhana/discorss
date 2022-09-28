@@ -36,7 +36,7 @@ export class RSSManager extends EventEmitter<Events> {
       .catch((err) => {
         if (err instanceof Deno.errors.NotFound) {
           Deno.mkdir(this.folder).then(() =>
-            Deno.writeFile(this.feedsList, encoder.encode('{}'))
+            Deno.writeFile(this.feedsList, encoder.encode('[]'))
           );
         }
       });
@@ -48,43 +48,41 @@ export class RSSManager extends EventEmitter<Events> {
   };
 
   async subscribeTo(url: string) {
-    const feedsListJSON = JSON.parse(
+    let feedsList = JSON.parse(
       decoder.decode(await Deno.readFile(this.feedsList)),
     );
 
-    if (!feedsListJSON['feeds']) {
-      feedsListJSON['feeds'] = [];
+    if (!feedsList) {
+      feedsList = [];
     }
 
-    if (feedsListJSON['feeds'].includes(url)) {
+    if (feedsList.includes(url)) {
       return Promise.reject('Already subscribed to this feed.');
     } else {
-      feedsListJSON['feeds'].push(url);
+      feedsList.push(url);
 
       this.emit('subscription', url);
       return Deno.writeFile(
         this.feedsList,
-        encoder.encode(JSON.stringify(feedsListJSON, null, 2)),
+        encoder.encode(JSON.stringify(feedsList, null, 2)),
       ).then(() => Promise.resolve('Added to feeds list.'));
     }
   }
 
   async unsubscribeFrom(url: string) {
-    const feedsListJSON = JSON.parse(
+    let feedsList = JSON.parse(
       decoder.decode(await Deno.readFile(this.feedsList)),
     );
 
-    if (!feedsListJSON['feeds'] || !feedsListJSON['feeds'].includes(url)) {
+    if (!feedsList || !feedsList.includes(url)) {
       return Promise.reject('Not subscribed to this feed');
     } else {
-      feedsListJSON['feeds'] = feedsListJSON['feeds'].filter((el: string) =>
-        el !== url
-      );
+      feedsList = feedsList.filter((el: string) => el !== url);
 
       this.emit('unsubscription', url);
       return Deno.writeFile(
         this.feedsList,
-        encoder.encode(JSON.stringify(feedsListJSON, null, 2)),
+        encoder.encode(JSON.stringify(feedsList, null, 2)),
       ).then(() => Promise.resolve('Removed feed from list.'));
     }
   }
