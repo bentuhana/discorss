@@ -4,12 +4,13 @@ import {
   Client,
   ClientOptions,
   customValidation,
+  Embed,
   event,
   slash,
 } from 'harmony';
 
 import { RSSManager, type RSSManagerOptions } from './RSSManager.ts';
-import { validators } from './utils.ts';
+import { utils, validators } from './utils.ts';
 
 export class DiscoRSSClient extends Client {
   commands: ApplicationCommandPartial[];
@@ -18,7 +19,7 @@ export class DiscoRSSClient extends Client {
 
   constructor(
     clientOptions: ClientOptions,
-    rssManagerOptions: RSSManagerOptions | null,
+    rssManagerOptions: RSSManagerOptions,
     commands: ApplicationCommandPartial[],
   ) {
     super(clientOptions);
@@ -32,12 +33,30 @@ export class DiscoRSSClient extends Client {
     console.log(`Logged in as ${this.user?.tag}!`);
 
     this.interactions.commands.bulkEdit(this.commands); // will update this soon
-    this.rssCheckerId = this.rssManager.startCheck();
 
-    this.rssManager.on(
-      'newPost',
-      (p) => this.channels.sendMessage('1024757600312639518', p.title.value),
-    );
+    if (!this.rssManager.feedPostChannelId.length) {
+      throw new Error('Feed post channel Id not set.');
+    } else {
+      this.rssCheckerId = this.rssManager.startCheck();
+      this.rssManager.on('newPost', (post) => {
+        const embed = new Embed({
+          title: post?.title ?? 'No Title',
+          url: post?.link ?? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          description: post?.description
+            ? utils.htmlToText(post.description)
+            : 'No description',
+          timestamp: post?.publishDate
+            ? new Date(post.publishDate).toISOString()
+            : undefined,
+          footer: {
+            text: post.categories?.join(', ') ??
+              'Unknown tag',
+          },
+        });
+
+        this.channels.sendMessage(this.rssManager.feedPostChannelId, embed);
+      });
+    }
   }
 
   @slash()
@@ -45,17 +64,17 @@ export class DiscoRSSClient extends Client {
     d.reply(`Gateway latency: ${this.gateway.ping.toString()}`);
   }
 
-  @slash()
-  @customValidation(
-    (i) => validators.isMyOwner(i.client, i.user.id),
-    'You\'re not my author.',
-  )
-  async eval(i: ApplicationCommandInteraction) {
-    const code = i.option<string>('code'),
-      evaluated = await eval(`(async () => {${code}})()`);
+  // @slash()
+  // @customValidation(
+  //   (i) => validators.isMyOwner(i.client, i.user.id),
+  //   'You\'re not my author.',
+  // )
+  // async eval(i: ApplicationCommandInteraction) {
+  //   const code = i.option<string>('code'),
+  //     evaluated = await eval(`(async () => {${code}})()`);
 
-    i.reply(Deno.inspect(evaluated));
-  }
+  //   i.reply(Deno.inspect(evaluated));
+  // }
 
   @slash()
   @customValidation(
@@ -101,5 +120,11 @@ export class DiscoRSSClient extends Client {
   stop(i: ApplicationCommandInteraction) {
     this.rssManager.stopCheck(this.rssCheckerId);
     i.reply('Stopped.');
+  }
+
+  @slash()
+  async list(i: ApplicationCommandInteraction) {
+    const feedsList = await this.rssManager.getSubscriptions();
+    i.reply(feedsList.join(', '));
   }
 }

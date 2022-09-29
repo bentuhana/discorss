@@ -8,5 +8,10 @@
       "useTabs": false
     }
   },
+  "tasks": {
+    "run": "deno run --unstable -A src/index.ts",
+    "watch": "deno run --unstable --watch -A src/index.ts",
+    "bundle": "deno bundle --unstable src/index.ts -- dist/index.js"
+  },
   "importMap": "import_map.json"
 }

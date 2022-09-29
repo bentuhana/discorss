@@ -1,4 +1,5 @@
 import { type Client } from 'harmony';
+import { DOMParser } from 'dom';
 
 export const validators = {
   async isValidRSSFeed(url: string) {
@@ -27,5 +28,9 @@ export const utils = {
   },
   decode(input: BufferSource) {
     return new TextDecoder().decode(input);
+  },
+  htmlToText(input: string) {
+    return new DOMParser().parseFromString(input, 'text/html')?.textContent ||
+      undefined;
   },
 };

@@ -9,3 +9,7 @@ DISCORD_TOKEN=token deno run -A src/index.ts
 # or with docker
 docker run -e DISCORD_TOKEN=token discorss
 ```
+
+## todo
+
+- [ ] do a thing

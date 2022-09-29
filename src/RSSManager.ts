@@ -1,5 +1,6 @@
 import { EventEmitter } from 'event';
-import { type Feed, parseFeed } from 'rss';
+import { parseFeed } from 'rss';
+import * as lodash from 'lodash';
 
 import * as path from 'path';
 
@@ -11,11 +12,21 @@ const __dirname = metaURL.slice(0, metaURL.lastIndexOf('/'));
 type Events = {
   subscription: [string];
   unsubscription: [string];
-  newPost: [Feed];
+  newPost: [Post];
 };
+
+interface Post {
+  title: string | undefined;
+  author: string | undefined;
+  link: string | undefined;
+  publishDate: string | undefined;
+  categories: (string | undefined)[] | undefined;
+  description: string | undefined;
+}
 
 export interface RSSManagerOptions {
   folder?: string;
+  feedChannelId?: string;
   checkInterval?: number;
 }
 
@@ -23,15 +34,24 @@ export class RSSManager extends EventEmitter<Events> {
   folder: string;
   feedsList: string;
   checkInterval: number;
+  feedPostChannelId: string;
 
-  constructor(options?: RSSManagerOptions | null) {
+  constructor(options?: RSSManagerOptions) {
     super();
 
-    this.folder = options?.folder
-      ? path.join(__dirname, options.folder)
-      : path.join(__dirname, '../rss');
+    const feedFolder = Deno.env.get('FEED_FOLDER'),
+      feedChannelId = Deno.env.get('FEED_CHANNEL_ID'),
+      feedCheckInterval = Deno.env.get('FEED_CHECK_INTERVAL');
+
+    if (feedFolder) this.folder = path.join(__dirname, feedFolder);
+    else this.folder = path.join(__dirname, options?.folder ?? '../rss');
     this.feedsList = this.folder + '/feeds.json';
-    this.checkInterval = options?.checkInterval ?? 60 * 1000;
+
+    if (feedCheckInterval) this.checkInterval = +feedCheckInterval * 60_000;
+    else this.checkInterval = options?.checkInterval ?? 1 * 60_000;
+
+    if (feedChannelId) this.feedPostChannelId = feedChannelId;
+    else this.feedPostChannelId = options?.feedChannelId ?? '';
 
     Deno.stat(this.feedsList)
       .catch((err) => {
@@ -47,24 +67,12 @@ export class RSSManager extends EventEmitter<Events> {
     return new URL(url).hostname;
   };
 
-  private async getSubscriptions() {
-    const data = await Deno.readFile(this.feedsList),
-      feeds: string[] = JSON.parse(utils.decode(data));
-
-    return feeds;
-  }
-
   async subscribeTo(url: string) {
-    let feedsList: string[] = JSON.parse(
-      utils.decode(await Deno.readFile(this.feedsList)),
-    );
-
-    if (!feedsList) {
-      feedsList = [];
-    }
+    let feedsList = await this.getSubscriptions();
+    if (!feedsList.length) feedsList = [];
 
     if (feedsList.includes(url)) {
-      return Promise.reject('Already subscribed to this feed.');
+      return Promise.reject('You are already subscribed to this feed.');
     } else {
       feedsList.push(url);
 
@@ -72,14 +80,12 @@ export class RSSManager extends EventEmitter<Events> {
       return Deno.writeFile(
         this.feedsList,
         utils.encode(JSON.stringify(feedsList)),
-      ).then(() => Promise.resolve('Added to feeds list.'));
+      ).then(() => Promise.resolve('Subscribed to feed.'));
     }
   }
 
   async unsubscribeFrom(url: string) {
-    let feedsList: string[] = JSON.parse(
-      utils.decode(await Deno.readFile(this.feedsList)),
-    );
+    let feedsList = await this.getSubscriptions();
 
     if (!feedsList || !feedsList.includes(url)) {
       return Promise.reject('Not subscribed to this feed');
@@ -94,28 +100,57 @@ export class RSSManager extends EventEmitter<Events> {
     }
   }
 
+  async getSubscriptions() {
+    const data = await Deno.readFile(this.feedsList),
+      feeds: string[] = JSON.parse(utils.decode(data));
+
+    return feeds;
+  }
+
   startCheck() {
     return setInterval(async () => {
-      const feeds = await this.getSubscriptions();
+      const subscriptions = await this.getSubscriptions();
 
-      feeds.forEach(async (feed) => {
-        const resp = await fetch(feed),
-          rssXML = await resp.text(),
-          feedURLHostname = this.URLToHostname(feed);
+      subscriptions.forEach(async (feedURL) => {
+        const feedURLAsHostname = this.URLToHostname(feedURL);
 
-        const currentXML = utils.decode(
-            await Deno.readFile(
-              `${this.folder}/${feedURLHostname}.xml`,
-            ).catch(() => utils.encode('')),
-          ),
-          feedRSSXMl = await parseFeed(rssXML);
+        const resp = await fetch(feedURL),
+          feedRSS = await resp.text(),
+          lastEntry = (await parseFeed(feedRSS)).entries[0];
 
-        if (currentXML.length !== rssXML.length) {
-          this.emit('newPost', feedRSSXMl);
-          await Deno.writeFile(
-            `${this.folder}/${feedURLHostname}.xml`,
-            utils.encode(rssXML),
+        const postJSON = {
+          title: lastEntry.title?.value ?? undefined,
+          author: lastEntry.author?.name ?? undefined,
+          link: lastEntry.links[0]?.href ?? undefined,
+          publishDate: lastEntry?.publishedRaw ?? undefined,
+          categories: lastEntry.categories
+            ? lastEntry.categories.map((ctg) => ctg.term)
+            : undefined,
+          description: lastEntry.description?.value,
+        };
+        let postFileJSON;
+
+        try {
+          postFileJSON = JSON.parse(
+            utils.decode(
+              await Deno.readFile(`${this.folder}/${feedURLAsHostname}.json`),
+            ),
           );
+        } catch (err) {
+          if (err instanceof Deno.errors.NotFound) {
+            await Deno.writeFile(
+              `${this.folder}/${feedURLAsHostname}.json`,
+              utils.encode(JSON.stringify(postJSON)),
+            );
+          }
+        }
+
+        if (!lodash.isEqual(postFileJSON, postJSON)) {
+          Deno.writeFile(
+            `${this.folder}/${feedURLAsHostname}.json`,
+            utils.encode(JSON.stringify(postJSON)),
+          );
+          this.emit('newPost', postJSON);
         }
       });
     }, this.checkInterval);
@@ -123,6 +158,5 @@ export class RSSManager extends EventEmitter<Events> {
 
   stopCheck(intervalId: number) {
     clearInterval(intervalId);
-    return 'Stopped checking feeds.';
   }
 }

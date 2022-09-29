@@ -6,7 +6,7 @@ import {
 const commands: ApplicationCommandPartial[] = [{
   name: 'latency',
   description: 'Look what gateway latency is.',
-}, {
+}, /*{
   name: 'eval',
   description: 'Evaluate some code.',
   options: [{
@@ -15,7 +15,7 @@ const commands: ApplicationCommandPartial[] = [{
     type: ApplicationCommandOptionType.STRING,
     required: true,
   }],
-}, {
+},*/ {
   name: 'subscribe',
   description: 'Subscribe to RSS feed.',
   options: [{
@@ -39,6 +39,9 @@ const commands: ApplicationCommandPartial[] = [{
 }, {
   name: 'stop',
   description: 'Stop RSS feed',
+}, {
+  name: 'list',
+  description: 'List added RSS feeds.',
 }];
 
 export { commands };
