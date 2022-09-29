@@ -41,7 +41,15 @@ const commands: ApplicationCommandPartial[] = [{
   description: 'Stop RSS feed',
 }, {
   name: 'list',
-  description: 'List added RSS feeds.',
+  description: 'List subscribed RSS feeds.',
+}, {
+  name: 'clear',
+  description: 'Clears',
+  options: [{
+    name: 'orphans',
+    description: 'Clear orphan feed files.',
+    type: ApplicationCommandOptionType.SUB_COMMAND,
+  }],
 }];
 
 export { commands };

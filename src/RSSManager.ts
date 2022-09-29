@@ -159,4 +159,32 @@ export class RSSManager extends EventEmitter<Events> {
   stopCheck(intervalId: number) {
     clearInterval(intervalId);
   }
+
+  async clearOrphanFeedFiles() {
+    const currentFeedsList = (await this.getSubscriptions()).map((f) =>
+        this.URLToHostname(f)
+      ),
+      createdFeedFiles = [];
+
+    for await (const feedFile of Deno.readDir(this.folder)) {
+      if (feedFile.name === 'feeds.json') continue;
+      createdFeedFiles.push(
+        feedFile.name.substring(0, feedFile.name.lastIndexOf('.')),
+      );
+    }
+
+    const orphans = createdFeedFiles.filter((cf) =>
+      !currentFeedsList.includes(cf)
+    );
+
+    if (!orphans.length) {
+      return Promise.reject('No orphan file found.');
+    } else {
+      orphans.forEach(async (orphan) => {
+        await Deno.remove(`${this.folder}/${orphan}.json`);
+      });
+
+      return Promise.resolve('Cleared orphan files.');
+    }
+  }
 }

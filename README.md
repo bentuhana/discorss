@@ -12,4 +12,4 @@ docker run -e DISCORD_TOKEN=token discorss
 
 ## todo
 
-- [ ] do a thing
+- [ ] seperate commands into file or move them from Client.ts to commands.ts

@@ -7,6 +7,7 @@ import {
   Embed,
   event,
   slash,
+  subslash,
 } from 'harmony';
 
 import { RSSManager, type RSSManagerOptions } from './RSSManager.ts';
@@ -126,5 +127,12 @@ export class DiscoRSSClient extends Client {
   async list(i: ApplicationCommandInteraction) {
     const feedsList = await this.rssManager.getSubscriptions();
     i.reply(feedsList.join(', '));
+  }
+
+  @subslash('clear')
+  orphans(i: ApplicationCommandInteraction) {
+    this.rssManager.clearOrphanFeedFiles().then(() =>
+      i.reply('Cleared orphan files.')
+    ).catch(() => i.reply('No orphan file found.'));
   }
 }
