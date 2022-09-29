@@ -12,4 +12,7 @@ docker run -e DISCORD_TOKEN=token discorss
 
 ## todo
 
-- [ ] seperate commands into file or move them from Client.ts to commands.ts
+- [] seperate commands into file or move them from Client.ts to commands.ts
+- [] add clear feeds command
+- [] make helper functions for things like clearOrphanFeedFiles
+- [] cleanup
