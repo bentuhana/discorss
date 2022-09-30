@@ -9,4 +9,5 @@ FROM denoland/deno:alpine-1.26.0
 WORKDIR /discorss
 
 COPY --from=builder /discorss/dist/index.js .
+VOLUME [ "/rss" ]
 CMD [ "run", "-A", "index.js" ]
