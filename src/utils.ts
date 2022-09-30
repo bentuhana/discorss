@@ -6,7 +6,7 @@ export const validators = {
     const { headers } = await fetch(url),
       contentTypes = ['rss+xml', 'atom+xml', 'text/xml'],
       matches = contentTypes.filter((ct) =>
-        ct.includes(headers.get('Content-Type')!)
+        headers.get('Content-Type')!.includes(ct)
       );
 
     return matches.length ? true : false;
