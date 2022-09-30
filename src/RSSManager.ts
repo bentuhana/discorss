@@ -57,7 +57,7 @@ export class RSSManager extends EventEmitter<Events> {
         if (err instanceof Deno.errors.NotFound) {
           Deno.mkdir(this.folder).then(() =>
             Deno.writeFile(this.feedsList, utils.encode('[]'))
-          );
+          ).catch(() => Deno.writeFile(this.feedsList, utils.encode('[]')));
         }
       });
   }
