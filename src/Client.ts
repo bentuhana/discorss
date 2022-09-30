@@ -1,4 +1,4 @@
-import { Client, ClientOptions, Embed, event } from 'harmony';
+import { Client, ClientOptions, Embed, event } from 'x/harmony';
 
 import { RSSManager, type RSSManagerOptions } from './RSSManager.ts';
 import { Commands, commandsObject } from './commands.ts';

@@ -2,12 +2,12 @@
 
 mostly hardcoded _for now_
 
-to login with your bot, just add DISCORD_TOKEN environment variable to command.
+to login with your bot, edit .env.defaults file and rename it to .env, then run:
 
 ```sh
-DISCORD_TOKEN=token deno run -A src/index.ts
+deno run -A src/index.ts
 # or with docker
-docker run -e DISCORD_TOKEN=token discorss
+docker run --env-file .env discorss
 ```
 
 ## todo

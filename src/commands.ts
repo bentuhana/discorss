@@ -6,7 +6,7 @@ import {
   customValidation,
   slash,
   subslash,
-} from 'harmony';
+} from 'x/harmony';
 
 import { DiscoRSSClient } from './Client.ts';
 import { validators } from './utils.ts';

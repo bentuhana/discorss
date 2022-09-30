@@ -1,13 +1,12 @@
-import { EventEmitter } from 'event';
-import { parseFeed } from 'rss';
-import isEqual from 'denodash/isEqual';
+import { EventEmitter } from 'x/event';
+import { parseFeed } from 'x/rss';
+import isEqual from 'x/denodash/isEqual';
 
-import * as path from 'path';
+import * as path from 'std/path';
 
 import { utils } from './utils.ts';
 
-const metaURL = new URL(import.meta.url).pathname;
-const __dirname = metaURL.slice(0, metaURL.lastIndexOf('/'));
+const __dirname = Deno.cwd();
 
 type Events = {
   subscription: [string];

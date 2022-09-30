@@ -1,5 +1,5 @@
-import { type Client } from 'harmony';
-import { DOMParser } from 'dom';
+import { type Client } from 'x/harmony';
+import { DOMParser } from 'x/deno-dom';
 
 export const validators = {
   async isValidRSSFeed(url: string) {
@@ -30,7 +30,7 @@ export const utils = {
     return new TextDecoder().decode(input);
   },
   htmlToText(input: string) {
-    return new DOMParser().parseFromString(input, 'text/html')?.textContent ||
+    return new DOMParser().parseFromString(input, 'text/html')!.textContent ||
       undefined;
   },
 };
