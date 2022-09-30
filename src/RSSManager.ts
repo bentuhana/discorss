@@ -125,7 +125,8 @@ export class RSSManager extends EventEmitter<Events> {
           categories: lastEntry.categories
             ? lastEntry.categories.map((ctg) => ctg.term)
             : null,
-          description: lastEntry.description?.value ?? null,
+          description: lastEntry.description?.value ??
+            lastEntry.content?.value ?? null,
         };
         let postFileJSON;
 
