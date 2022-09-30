@@ -3,7 +3,7 @@
     "x/harmony": "https://code.harmony.rocks/v2.6.0/mod.ts",
     "x/rss": "https://deno.land/x/rss@0.5.6/mod.ts",
     "x/event": "https://deno.land/x/event@2.0.1/mod.ts",
-    "x/deno-dom": "https://deno.land/x/deno_dom@v0.1.35-alpha/deno-dom-wasm.ts",
+    "x/deno-dom": "https://deno.land/x/deno_dom@v0.1.35-alpha/deno-dom-wasm-noinit.ts",
     "x/denodash/isEqual": "https://deno.land/x/denodash@0.1.3/src/lang/isEqual.ts",
     "std/path": "https://deno.land/std@0.158.0/path/mod.ts",
     "std/dotenv/load": "https://deno.land/std@0.158.0/dotenv/load.ts"

@@ -15,12 +15,12 @@ type Events = {
 };
 
 interface Post {
-  title: string | undefined;
-  author: string | undefined;
-  link: string | undefined;
-  publishDate: string | undefined;
-  categories: (string | undefined)[] | undefined;
-  description: string | undefined;
+  title: string | null;
+  author: string | null;
+  link: string | null;
+  publishDate: string | null;
+  categories: (string | undefined)[] | null;
+  description: string | null;
 }
 
 export interface RSSManagerOptions {
@@ -118,14 +118,14 @@ export class RSSManager extends EventEmitter<Events> {
           lastEntry = (await parseFeed(feedRSS)).entries[0];
 
         const postJSON = {
-          title: lastEntry.title?.value ?? undefined,
-          author: lastEntry.author?.name ?? undefined,
-          link: lastEntry.links[0]?.href ?? undefined,
-          publishDate: lastEntry?.publishedRaw ?? undefined,
+          title: lastEntry.title?.value ?? null,
+          author: lastEntry.author?.name ?? null,
+          link: lastEntry.links[0]?.href ?? null,
+          publishDate: lastEntry?.publishedRaw ?? null,
           categories: lastEntry.categories
             ? lastEntry.categories.map((ctg) => ctg.term)
-            : undefined,
-          description: lastEntry.description?.value,
+            : null,
+          description: lastEntry.description?.value ?? null,
         };
         let postFileJSON;
 
@@ -139,7 +139,9 @@ export class RSSManager extends EventEmitter<Events> {
           if (err instanceof Deno.errors.NotFound) {
             await Deno.writeFile(
               `${this.folder}/${feedURLAsHostname}.json`,
-              utils.encode(JSON.stringify(postJSON)),
+              utils.encode(
+                JSON.stringify(postJSON),
+              ),
             );
           }
         }
@@ -147,7 +149,9 @@ export class RSSManager extends EventEmitter<Events> {
         if (!isEqual(postFileJSON, postJSON)) {
           Deno.writeFile(
             `${this.folder}/${feedURLAsHostname}.json`,
-            utils.encode(JSON.stringify(postJSON)),
+            utils.encode(
+              JSON.stringify(postJSON),
+            ),
           );
           this.emit('newPost', postJSON);
         }

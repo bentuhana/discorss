@@ -1,12 +1,15 @@
 import { type Client } from 'x/harmony';
-import { DOMParser } from 'x/deno-dom';
+import { DOMParser, initParser } from 'x/deno-dom';
 
 export const validators = {
   async isValidRSSFeed(url: string) {
-    const { headers } = await fetch(url);
-    return headers.get('content-type')?.includes('application/rss+xml')
-      ? true
-      : false;
+    const { headers } = await fetch(url),
+      contentTypes = ['rss+xml', 'atom+xml', 'text/xml'],
+      matches = contentTypes.filter((ct) =>
+        ct.includes(headers.get('Content-Type')!)
+      );
+
+    return matches.length ? true : false;
   },
   isValidURL(url: string) {
     try {
@@ -29,8 +32,9 @@ export const utils = {
   decode(input: BufferSource) {
     return new TextDecoder().decode(input);
   },
-  htmlToText(input: string) {
-    return new DOMParser().parseFromString(input, 'text/html')!.textContent ||
-      undefined;
+  async htmlToText(input: string) {
+    // return input.replace(/<[^>]*>?/gm, '');
+    await initParser();
+    return new DOMParser().parseFromString(input, 'text/html')!.textContent;
   },
 };

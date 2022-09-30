@@ -28,16 +28,16 @@ export class DiscoRSSClient extends Client {
       throw new Error('Feed post channel Id not set.');
     } else {
       this.rssCheckerId = this.rssManager.startCheck();
-      this.rssManager.on('newPost', (post) => {
+      this.rssManager.on('newPost', async (post) => {
         const embed = new Embed({
           title: post?.title ?? 'No Title',
           url: post?.link ?? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
           description: post?.description
-            ? utils.htmlToText(post.description)
+            ? await utils.htmlToText(post.description)
             : 'No description',
           timestamp: post?.publishDate
             ? new Date(post.publishDate).toISOString()
-            : undefined,
+            : new Date(Date.now()).toISOString(),
           footer: {
             text: post.categories?.join(', ') ??
               'Unknown tag',
