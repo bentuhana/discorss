@@ -17,3 +17,4 @@ docker run -e DISCORD_TOKEN=token discorss
 - [ ] make helper functions for things like clearOrphanFeedFiles
 - [ ] command helpers
 - [ ] cleanup
+- [ ] maybe seperate checks into different processes?

@@ -4,7 +4,7 @@
     "rss": "https://deno.land/x/rss@0.5.6/mod.ts",
     "event": "https://deno.land/x/event@2.0.1/mod.ts",
     "dom": "https://esm.sh/linkedom@0.14.16",
-    "isEqual": "https://deno.land/x/denodash@0.1.3/src/lang/isEqual.ts",
+    "denodash/isEqual": "https://deno.land/x/denodash@0.1.3/src/lang/isEqual.ts",
     "path": "https://deno.land/std@0.158.0/path/mod.ts",
     "dotenv": "https://deno.land/std@0.158.0/dotenv/load.ts"
   }

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'event';
 import { parseFeed } from 'rss';
-import isEqual from 'isEqual';
+import isEqual from 'denodash/isEqual';
 
 import * as path from 'path';
 
