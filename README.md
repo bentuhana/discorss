@@ -16,5 +16,6 @@ docker run --env-file .env discorss
 - [ ] add clear feeds command
 - [ ] make helper functions for things like clearOrphanFeedFiles
 - [ ] command helpers
+- [ ] autocomplete to some commands
 - [ ] cleanup and optimizations
 - [ ] maybe seperate checks into different processes?
