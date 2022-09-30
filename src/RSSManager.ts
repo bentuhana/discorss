@@ -1,6 +1,6 @@
 import { EventEmitter } from 'event';
 import { parseFeed } from 'rss';
-import * as lodash from 'lodash';
+import isEqual from 'isEqual';
 
 import * as path from 'path';
 
@@ -145,7 +145,7 @@ export class RSSManager extends EventEmitter<Events> {
           }
         }
 
-        if (!lodash.isEqual(postFileJSON, postJSON)) {
+        if (!isEqual(postFileJSON, postJSON)) {
           Deno.writeFile(
             `${this.folder}/${feedURLAsHostname}.json`,
             utils.encode(JSON.stringify(postJSON)),
