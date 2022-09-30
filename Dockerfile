@@ -2,7 +2,7 @@ FROM denoland/deno:alpine-1.26.0 AS builder
 WORKDIR /discorss
 
 COPY . .
-# RUN mkdir dist
+RUN mkdir dist
 RUN deno task bundle
 
 FROM denoland/deno:alpine-1.26.0
