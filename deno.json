@@ -9,9 +9,9 @@
     }
   },
   "tasks": {
-    "run": "deno run --unstable -A src/index.ts",
-    "watch": "deno run --unstable --watch -A src/index.ts",
-    "bundle": "deno bundle --unstable src/index.ts -- dist/index.js"
+    "run": "deno run -A src/index.ts",
+    "watch": "deno run --watch -A src/index.ts",
+    "bundle": "deno bundle src/index.ts -- dist/index.js"
   },
   "importMap": "import_map.json"
 }
