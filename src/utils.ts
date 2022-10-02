@@ -9,7 +9,7 @@ export const validators = {
         headers.get('Content-Type')!.includes(ct)
       );
 
-    return matches.length ? true : false;
+    return !!matches.length;
   },
   isValidURL(url: string) {
     try {
@@ -19,10 +19,10 @@ export const validators = {
       return false;
     }
   },
-  async isMyOwner(client: Client, senderId: string) {
-    const ownerId = (await client.fetchApplication()).owner!.id;
-    return ownerId === senderId ? true : false;
-  },
+  // async isMyOwner(client: Client, senderId: string) {
+  //   const ownerId = (await client.fetchApplication()).owner!.id;
+  //   return ownerId === senderId ? true : false;
+  // },
 };
 
 export const utils = {

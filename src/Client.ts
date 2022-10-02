@@ -35,9 +35,7 @@ export class DiscoRSSClient extends Client {
           description: post?.description
             ? await utils.htmlToText(post.description)
             : 'No description',
-          timestamp: post?.publishDate
-            ? new Date(post.publishDate).toISOString()
-            : new Date(Date.now()).toISOString(),
+          timestamp: new Date(post?.publishDate ?? Date.now()).toISOString(),
           footer: {
             text: post.categories?.join(', ') ??
               'Unknown tag',
