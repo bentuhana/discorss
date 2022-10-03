@@ -10,7 +10,7 @@ deno run -A src/index.ts
 docker run --env-file .env discorss
 ```
 
-## todo
+## todo (not in order)
 
 - [x] seperate commands into file or move them from Client.ts to commands.ts
 - [ ] add clear feeds command
@@ -19,3 +19,4 @@ docker run --env-file .env discorss
 - [ ] autocomplete to some commands
 - [ ] cleanup and optimizations
 - [ ] maybe seperate checks into different processes?
+- [ ] support for atom (current implementation doesn't follow atom specification)
