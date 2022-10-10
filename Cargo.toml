@@ -1,0 +1,31 @@
+[package]
+name = "discorss"
+version = "0.0.0"
+edition = "2021"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+
+[dependencies]
+dotenvy = "0.15"
+
+[dependencies.serenity]
+git = "https://github.com/serenity-rs/serenity"
+branch = "next"
+default-features = false
+features = [
+  "builder",
+  "client",
+  "gateway",
+  "http",
+  "model",
+  "time",
+  "rustls_backend",
+]
+
+[dependencies.tokio]
+version = "1.21"
+features = ["rt-multi-thread"]
