@@ -1,22 +1,8 @@
-[tasks.lint]
-install_crate = { rustup_component_name = "clippy" }
-command = "cargo"
-args = ["clippy"]
-
-[tasks.run]
-command = "cargo"
-args = ["run"]
-
 [tasks.watch]
 install_crate = "cargo-watch"
 command = "cargo"
 args = ["watch", "-x", "run"]
 
-[tasks.build]
-command = "cargo"
-args = ["build"]
-
 [tasks.build-release]
-dependencies = ["lint"]
 command = "cargo"
 args = ["build", "--release", "--target", "x86_64-unknown-linux-musl"]
