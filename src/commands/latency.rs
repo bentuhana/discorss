@@ -16,15 +16,15 @@ pub async fn run(
     ctx: &Context,
     interaction: &ApplicationCommandInteraction,
 ) {
-    let typing_response_data = CreateInteractionResponseData::new();
-    let typing_response = CreateInteractionResponse::new()
+    let thinking_response_data = CreateInteractionResponseData::new();
+    let thinking_response = CreateInteractionResponse::new()
         .kind(InteractionResponseType::DeferredChannelMessageWithSource)
-        .interaction_response_data(typing_response_data);
+        .interaction_response_data(thinking_response_data);
     let mut followup = CreateInteractionResponseFollowup::new();
 
     let rest_latency_calculation_start = Instant::now();
     interaction
-        .create_interaction_response(&ctx.http, typing_response)
+        .create_interaction_response(&ctx.http, thinking_response)
         .await
         .ok();
     let rest_latency = rest_latency_calculation_start.elapsed().as_millis();
