@@ -38,20 +38,14 @@ impl EventHandler for Events {
                 .await
             {
                 println!(
-                    "{}",
-                    format!(
-                        "Cannot create thinking instance on command {}: {}",
-                        command.data.name, why
-                    )
+                    "Cannot create thinking instance on command {}: {}",
+                    command.data.name, why
                 )
             }
             if let Err(why) = command.create_followup_message(&ctx.http, content).await {
                 println!(
-                    "{}",
-                    format!(
-                        "Cannot followup thinking instance on command {}: {}",
-                        command.data.name, why
-                    )
+                    "Cannot followup thinking instance on command {}: {}",
+                    command.data.name, why
                 )
             }
         }
