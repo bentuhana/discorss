@@ -1,0 +1,57 @@
+name: Lint and Build
+
+on:
+  push:
+    paths:
+      - "src/*"
+      - "Cargo.{lock,toml}"
+      - ".github/workflows/*"
+  pull_request:
+    paths:
+      - "src/*"
+      - "Cargo.{lock,toml}"
+      - ".github/workflows/*"
+
+jobs:
+  check:
+    name: Lint and Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+          - beta
+          - nightly
+        target:
+          - x86_64-unknown-linux-musl
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install musl-tools package
+        if: ${{ matrix.target }} == 'x86_64-unknown-linux-musl'
+        run: sudo apt install musl-tools
+
+      - name: Install ${{ matrix.toolchain }} toolchain
+        run: |
+          rustup set profile default
+          rustup toolchain install ${{ matrix.toolchain }}
+          rustup target add --toolchain ${{ matrix.toolchain }} ${{ matrix.target }}
+          rustup default ${{ matrix.toolchain }}
+
+      - name: Run cargo check
+        run: cargo check --verbose
+
+      - name: Run rustfmt and clippy linters
+        run: |
+          cargo fmt --all --check --verbose
+          cargo clippy --no-deps --verbose
+
+      - name: Build project
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Upload built binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: discorss (${{ matrix.toolchain }} toolchain build)
+          path: target/x86_64-unknown-linux-musl/release/discorss
