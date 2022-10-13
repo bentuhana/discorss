@@ -1,5 +1,6 @@
-use dotenvy::dotenv;
 use std::env;
+
+use dotenvy::dotenv;
 
 use serenity::model::gateway::GatewayIntents;
 use serenity::Client;
@@ -9,6 +10,8 @@ use events::Events;
 
 mod shard_manager;
 use shard_manager::ShardManagerContainer;
+
+mod database;
 
 #[tokio::main]
 async fn main() {

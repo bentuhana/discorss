@@ -2,10 +2,8 @@ use serenity::async_trait;
 use serenity::builder::{
     CreateInteractionResponse, CreateInteractionResponseData, CreateInteractionResponseFollowup,
 };
-use serenity::model::{
-    gateway::Ready,
-    prelude::{command::Command, Interaction, InteractionResponseType},
-};
+use serenity::model::gateway::Ready;
+use serenity::model::prelude::{command::Command, Interaction, InteractionResponseType};
 use serenity::prelude::{Context, EventHandler};
 
 #[path = "commands/mod.rs"]

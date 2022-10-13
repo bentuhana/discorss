@@ -5,9 +5,7 @@ use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::{ResolvedOption, ResolvedValue};
 use serenity::model::prelude::{ApplicationCommandInteraction, ChannelType};
 
-#[path = "../../database.rs"]
-mod database;
-use database::{Database, ServerData};
+use crate::database::{Database, ServerData};
 
 pub fn run(
     options: &[ResolvedOption],
