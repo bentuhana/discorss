@@ -1,16 +1,14 @@
-name: Lint and Build
+name: CI
 
 on:
   push:
     paths:
       - "src/*"
-      - "Cargo.{lock,toml}"
-      - ".github/workflows/*"
+      - ".github/workflows/ci.yaml"
   pull_request:
     paths:
       - "src/*"
-      - "Cargo.{lock,toml}"
-      - ".github/workflows/*"
+      - ".github/workflows/ci.yaml"
 
 jobs:
   check:
@@ -32,19 +30,19 @@ jobs:
         run: sudo apt install musl-tools
 
       - name: Install ${{ matrix.toolchain }} toolchain
-        run: |
-          rustup set profile default
-          rustup toolchain install ${{ matrix.toolchain }}
-          rustup target add --toolchain ${{ matrix.toolchain }} ${{ matrix.target }}
-          rustup default ${{ matrix.toolchain }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.target }}
+          default: true
+          override: true
+          profile: default
 
-      - name: Run cargo check
-        run: cargo check --verbose
-
-      - name: Run rustfmt and clippy linters
-        run: |
-          cargo fmt --all --check --verbose
-          cargo clippy --no-deps --verbose
+      - name: Run clippy linter
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --verbose
 
       - name: Build project
         run: cargo build --release --target ${{ matrix.target }}
