@@ -9,7 +9,7 @@ use serenity::model::prelude::interaction::application_command::ResolvedOption;
 use serenity::model::prelude::{ApplicationCommandInteraction, InteractionResponseType};
 use serenity::prelude::Context;
 
-use crate::structs::ShardManagerContainer;
+use crate::shard_manager::ShardManagerContainer;
 
 pub async fn run(
     _options: &[ResolvedOption<'_>],

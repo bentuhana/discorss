@@ -7,8 +7,8 @@ use serenity::Client;
 mod events;
 use events::Events;
 
-mod structs;
-use structs::ShardManagerContainer;
+mod shard_manager;
+use shard_manager::ShardManagerContainer;
 
 #[tokio::main]
 async fn main() {
