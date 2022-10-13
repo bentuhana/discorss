@@ -24,7 +24,7 @@ async fn main() {
 
     {
         let mut client_data = client.data.write().await;
-        client_data.insert::<ShardManagerContainer>(client.shard_manager.clone())
+        client_data.insert::<ShardManagerContainer>(client.shard_manager.clone());
     }
 
     if let Err(why) = client.start().await {

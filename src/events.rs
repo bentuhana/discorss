@@ -23,7 +23,7 @@ impl EventHandler for Events {
                     commands::latency::run(&command.data.options(), &ctx, &command).await;
                     return;
                 }
-                "set" => commands::set::channel::run(&command.data.options()),
+                "set" => commands::set::channel::run(&command.data.options(), &command),
                 cmd => CreateInteractionResponseFollowup::new()
                     .content(format!("No such command found: {}", cmd)),
             };
