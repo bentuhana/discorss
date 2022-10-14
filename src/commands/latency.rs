@@ -33,7 +33,7 @@ pub async fn run(
     let shard_manager = match ctx_data.get::<ShardManagerContainer>() {
         Some(shard) => shard,
         None => {
-            followup = followup.content("Couldn't get ShardManager.".to_string());
+            followup = followup.content("Could not get ShardManager.".to_string());
             interaction
                 .create_followup_message(&ctx.http, followup)
                 .await
@@ -47,7 +47,7 @@ pub async fn run(
     let runner = match runners.get(&ShardId(ctx.shard_id)) {
         Some(runner) => runner,
         None => {
-            followup = followup.content("Couldn't find any shard.".to_string());
+            followup = followup.content("Could not find any shard.".to_string());
             interaction
                 .create_followup_message(&ctx.http, followup)
                 .await

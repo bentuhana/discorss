@@ -1,4 +1,5 @@
 use std::env;
+use std::fs::File;
 
 use dotenvy::dotenv;
 
@@ -12,6 +13,7 @@ mod shard_manager;
 use shard_manager::ShardManagerContainer;
 
 mod database;
+use database::Database;
 
 #[tokio::main]
 async fn main() {
@@ -23,11 +25,19 @@ async fn main() {
     let mut client = Client::builder(token, intents)
         .event_handler(Events)
         .await
-        .expect("Couldn't build client.");
+        .expect("Could not build client.");
 
     {
         let mut client_data = client.data.write().await;
         client_data.insert::<ShardManagerContainer>(client.shard_manager.clone());
+    }
+
+    let database_file_path =
+        env::var("DATABASE_FILE_PATH").expect("Expected DATABASE_FILE_PATH environment variable.");
+    if File::open(&database_file_path).is_err() {
+        if let Err(why) = Database::new(&database_file_path) {
+            println!("Error occurred when creating database file. {:#?}", why);
+        }
     }
 
     if let Err(why) = client.start().await {

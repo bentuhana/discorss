@@ -1,14 +1,14 @@
 use std::env;
 use std::fs::{create_dir_all, read_dir};
-use std::path::PathBuf;
+use std::io::Error;
+use std::path::{Path, PathBuf};
 
 use pickledb::{PickleDb, PickleDbDumpPolicy};
 use serde::{Deserialize, Serialize};
-use serenity::model::prelude::ChannelId;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ServerData {
-    pub feed_channel_id: Option<ChannelId>,
+    pub feed_channel_id: Option<String>,
     pub feeds_list: Option<Vec<FeedsList>>,
 }
 
@@ -21,22 +21,30 @@ pub struct FeedsList {
 pub struct Database;
 #[allow(clippy::new_ret_no_self)]
 impl Database {
-    pub fn new(dump_policy: Option<PickleDbDumpPolicy>) -> PickleDb {
-        let database_file_path = env::var("DATABASE_FILE_PATH")
-            .expect("Expected DATABASE_FILE_PATH environment variable.");
-        let mut database_path = PathBuf::from(&database_file_path);
+    pub fn new<P: AsRef<Path>>(db_path: P) -> Result<(), Error> {
+        let mut database_file_path = PathBuf::new();
+        database_file_path.push(db_path);
+        let mut database_path = database_file_path.clone();
         database_path.pop();
 
         if read_dir(&database_path).is_err() {
             match create_dir_all(&database_path) {
-                Ok(_) => (),
-                Err(err) => println!("{}", err),
+                Ok(_) => Ok(()),
+                Err(err) => Err(err),
             }
+        } else {
+            PickleDb::new_json(database_file_path, PickleDbDumpPolicy::AutoDump);
+            Ok(())
         }
+    }
+    pub fn load(dump_policy: Option<PickleDbDumpPolicy>) -> PickleDb {
+        let database_file_path = env::var("DATABASE_FILE_PATH")
+            .expect("Expected DATABASE_FILE_PATH environment variable.");
 
-        PickleDb::new_json(
+        PickleDb::load_json(
             database_file_path,
-            dump_policy.unwrap_or(PickleDbDumpPolicy::DumpUponRequest),
+            dump_policy.unwrap_or(PickleDbDumpPolicy::AutoDump),
         )
+        .unwrap()
     }
 }

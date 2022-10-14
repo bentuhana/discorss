@@ -1,7 +1,7 @@
 [tasks.watch]
 install_crate = "cargo-watch"
 command = "cargo"
-args = ["watch", "-x", "run"]
+args = ["watch", "-c", "-d", "1.5", "-w", "src", "-x", "run"]
 
 [tasks.build-release]
 command = "cargo"

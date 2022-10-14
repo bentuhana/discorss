@@ -22,6 +22,7 @@ impl EventHandler for Events {
                     return;
                 }
                 "set" => commands::set::channel::run(&command.data.options(), &command),
+                "subscribe" => commands::subscribe::run(&command.data.options()).await,
                 cmd => CreateInteractionResponseFollowup::new()
                     .content(format!("No such command found: {}", cmd)),
             };
@@ -42,7 +43,7 @@ impl EventHandler for Events {
             }
             if let Err(why) = command.create_followup_message(&ctx.http, content).await {
                 println!(
-                    "Cannot followup thinking instance on command {}: {}",
+                    "Cannot respond to thinking instance on command {}: {}",
                     command.data.name, why
                 )
             }
@@ -54,6 +55,7 @@ impl EventHandler for Events {
         let commands_to_register = vec![
             commands::latency::register(),
             commands::set::channel::register(),
+            commands::subscribe::register(),
         ];
 
         if commands_to_register.len() >= registered_commands.unwrap().len() {

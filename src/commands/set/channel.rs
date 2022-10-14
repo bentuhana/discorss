@@ -12,23 +12,32 @@ pub fn run(
     interaction: &ApplicationCommandInteraction,
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
-    let mut db = Database::new(Some(pickledb::PickleDbDumpPolicy::AutoDump));
+    let mut db = Database::load(None);
 
-    let ResolvedValue::SubCommand(sub_command) = &options.get(0).unwrap().value else { return followup.content("Couldn't get SubCommand value."); };
-    let ResolvedValue::Channel(channel) = sub_command.get(0).unwrap().value else { return followup.content("Couldn't get Channel value."); };
+    let ResolvedValue::SubCommand(sub_command) = &options.get(0).unwrap().value else { return followup.content("SubCommand value not found."); };
+    let ResolvedValue::Channel(channel) = sub_command.get(0).unwrap().value else { return followup.content("Channel value not found."); };
 
     if channel.kind != ChannelType::Text {
         return followup.content("Channel must be a text channel.");
     }
 
-    db.set(
-        interaction.guild_id.unwrap().to_string().as_str(),
-        &ServerData {
-            feed_channel_id: Some(channel.id),
+    let data: ServerData;
+    if let Some(prev_data) =
+        db.get::<ServerData>(interaction.guild_id.unwrap().to_string().as_str())
+    {
+        data = ServerData {
+            feed_channel_id: Some(channel.id.to_string()),
+            ..prev_data
+        };
+    } else {
+        data = ServerData {
+            feed_channel_id: Some(channel.id.to_string()),
             ..Default::default()
-        },
-    )
-    .unwrap();
+        };
+    }
+
+    db.set(interaction.guild_id.unwrap().to_string().as_str(), &data)
+        .unwrap();
 
     followup.content(format!("Feed updates channel is set to <#{}>.", channel.id))
 }
