@@ -6,3 +6,7 @@ args = ["watch", "-c", "-d", "1.5", "-w", "src", "-x", "run"]
 [tasks.build-release]
 command = "cargo"
 args = ["build", "--release", "--target", "x86_64-unknown-linux-musl"]
+
+[tasks.build-container-image]
+command = "podman"
+args = ["build", ".", "-t", "discorss-rs-test"]
