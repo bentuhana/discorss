@@ -1,4 +1,4 @@
-FROM rust:1.64.0-alpine3.16 AS builder
+FROM docker.io/rust:1.64.0-alpine3.16 AS builder
 WORKDIR /usr/src/discorss
 COPY . .
 
@@ -8,6 +8,8 @@ RUN apk add --no-cache curl unzip musl-dev \
   && unzip cargo-make \
   && mv cargo-make-v0.36.1-x86_64-unknown-linux-musl/cargo-make . \
   && chmod +x cargo-make \
+  && rustup toolchain install beta \
+  && rustup default beta \
   && ./cargo-make make build-release
 
 FROM gcr.io/distroless/static
