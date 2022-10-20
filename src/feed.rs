@@ -33,8 +33,10 @@ impl FeedUtils {
         if let Some(data) = db.get::<ServerData>(guild_id.to_string().as_str()) {
             let mut feeds = vec![];
 
-            for feed in data.feeds_list.unwrap().into_iter() {
-                feeds.push(feed.feed_url)
+            if let Some(feeds_list) = data.feeds_list {
+                for feed in feeds_list.into_iter() {
+                    feeds.push(feed.feed_url)
+                }
             }
 
             Ok(feeds)

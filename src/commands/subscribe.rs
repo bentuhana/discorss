@@ -1,18 +1,17 @@
 use feed_rs::parser::ParseFeedError;
-use serenity::prelude::Context;
 use url::Url;
 
-use crate::database::{Database, FeedsList, ServerData};
-
-use crate::feed::{FeedUtils, GetFeedError};
-
 use serenity::builder::{
-    CreateApplicationCommand, CreateApplicationCommandOption, CreateAttachment,
-    CreateInteractionResponseFollowup, CreateWebhook,
+    CreateApplicationCommand, CreateApplicationCommandOption, CreateInteractionResponseFollowup,
+    CreateWebhook,
 };
 use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::{ResolvedOption, ResolvedValue};
 use serenity::model::prelude::{ApplicationCommandInteraction, ChannelId};
+use serenity::prelude::Context;
+
+use crate::database::{Database, FeedsList, ServerData};
+use crate::feed::{FeedUtils, GetFeedError};
 
 pub async fn run(
     options: &[ResolvedOption<'_>],
@@ -42,7 +41,6 @@ pub async fn run(
     match FeedUtils::get_feed(url.to_string()).await {
         Ok(feed) => {
             let feed_title = feed.title.unwrap().content;
-            let feed_site_icon = feed.icon.unwrap().link.unwrap();
 
             let prev_data = db.get::<ServerData>(guild_id.as_str());
 
@@ -53,11 +51,6 @@ pub async fn run(
                 let feed_channel_id = cloned_data.feed_channel_id.unwrap().parse().unwrap();
 
                 let webhook = CreateWebhook::new(feed_title)
-                    .avatar(
-                        &CreateAttachment::url(&ctx.http, feed_site_icon.href.as_str())
-                            .await
-                            .unwrap(),
-                    )
                     .execute(&ctx.http, ChannelId(feed_channel_id))
                     .await;
 
