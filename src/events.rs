@@ -22,9 +22,11 @@ impl EventHandler for Events {
                     return;
                 }
                 "set" => commands::set::channel::run(&command.data.options(), &command),
-                "subscribe" => commands::subscribe::run(&command.data.options()).await,
+                "subscribe" => {
+                    commands::subscribe::run(&command.data.options(), &ctx, &command).await
+                }
                 cmd => CreateInteractionResponseFollowup::new()
-                    .content(format!("No such command found: {}", cmd)),
+                    .content(format!("No such command found: {cmd}")),
             };
 
             let thinking_response_data = CreateInteractionResponseData::new();
@@ -37,14 +39,14 @@ impl EventHandler for Events {
                 .await
             {
                 println!(
-                    "Cannot create thinking instance on command {}: {}",
-                    command.data.name, why
+                    "Cannot create thinking instance on command {}: {why}",
+                    command.data.name
                 )
             }
             if let Err(why) = command.create_followup_message(&ctx.http, content).await {
                 println!(
-                    "Cannot respond to thinking instance on command {}: {}",
-                    command.data.name, why
+                    "Cannot respond to thinking instance on command {}: {why}",
+                    command.data.name
                 )
             }
         }
@@ -62,7 +64,7 @@ impl EventHandler for Events {
             if let Err(why) =
                 Command::set_global_application_commands(&ctx.http, commands_to_register).await
             {
-                println!("Error when registering global commands: {}", why)
+                println!("Error when registering global commands: {why}")
             }
         }
 

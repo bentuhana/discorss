@@ -18,7 +18,7 @@ pub fn run(
     let ResolvedValue::Channel(channel) = sub_command.get(0).unwrap().value else { return followup.content("Channel value not found."); };
 
     if channel.kind != ChannelType::Text {
-        return followup.content("Channel must be a text channel.");
+        return followup.content("Mentioned channel must be a text channel.");
     }
 
     let data: ServerData;

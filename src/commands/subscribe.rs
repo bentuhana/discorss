@@ -1,91 +1,102 @@
-use reqwest;
-use url::{ParseError, Url};
+use feed_rs::parser::ParseFeedError;
+use serenity::prelude::Context;
+use url::Url;
+
+use crate::database::{Database, FeedsList, ServerData};
+
+use crate::feed::{FeedUtils, GetFeedError};
 
 use serenity::builder::{
-    CreateApplicationCommand, CreateApplicationCommandOption, CreateInteractionResponseFollowup,
+    CreateApplicationCommand, CreateApplicationCommandOption, CreateAttachment,
+    CreateInteractionResponseFollowup, CreateWebhook,
 };
 use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::{ResolvedOption, ResolvedValue};
+use serenity::model::prelude::{ApplicationCommandInteraction, ChannelId};
 
-pub async fn run(options: &[ResolvedOption<'_>]) -> CreateInteractionResponseFollowup {
+pub async fn run(
+    options: &[ResolvedOption<'_>],
+    ctx: &Context,
+    interaction: &ApplicationCommandInteraction,
+) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
+    let guild_id = interaction.guild_id.unwrap().to_string();
+    let mut db = Database::load(None);
 
     let ResolvedValue::String(url) = &options.get(0).unwrap().value else { return followup.content("String value not found"); };
 
-    match Url::parse(url) {
-        Ok(url) => {
-            if url.scheme() != "http" && url.scheme() != "https" {
-                return followup.content("The URL entered must be using the HTTP(S) protocol.");
+    if let Ok(url) = Url::parse(url) {
+        if url.scheme() != "http" && url.scheme() != "https" {
+            return followup.content("The URL entered must be using the HTTP(S) protocol.");
+        }
+    } else {
+        return followup.content("Entered URL is not valid.");
+    }
+
+    if let Ok(feeds) = FeedUtils::get_subscriptions(guild_id.parse().unwrap(), &db) {
+        if feeds.contains(&url.to_string()) {
+            return followup.content(format!("Already subscribed to {url}."));
+        }
+    }
+
+    match FeedUtils::get_feed(url.to_string()).await {
+        Ok(feed) => {
+            let feed_title = feed.title.unwrap().content;
+            let feed_site_icon = feed.icon.unwrap().link.unwrap();
+
+            let prev_data = db.get::<ServerData>(guild_id.as_str());
+
+            if let Some(data) = prev_data {
+                let cloned_data = data.clone();
+
+                let mut feeds_list = cloned_data.feeds_list.unwrap_or_default();
+                let feed_channel_id = cloned_data.feed_channel_id.unwrap().parse().unwrap();
+
+                let webhook = CreateWebhook::new(feed_title)
+                    .avatar(
+                        &CreateAttachment::url(&ctx.http, feed_site_icon.href.as_str())
+                            .await
+                            .unwrap(),
+                    )
+                    .execute(&ctx.http, ChannelId(feed_channel_id))
+                    .await;
+
+                feeds_list.push(FeedsList {
+                    feed_url: url.to_string(),
+                    webhook_url: webhook.unwrap().url().unwrap(),
+                });
+
+                db.set(
+                    &guild_id,
+                    &ServerData {
+                        feeds_list: Some(feeds_list),
+                        ..data
+                    },
+                )
+                .unwrap();
+
+                followup.content(format!("Subscribed to {url}"))
+            } else {
+                followup.content(
+                    "Feed channel is not set. Please set feed updates channel and try again.",
+                )
             }
         }
         Err(err) => {
             let reason = match err {
-                ParseError::EmptyHost => "URL does not contain any host name.",
-                ParseError::InvalidDomainCharacter => "URL have unsupported characters. Characters such as space are not allowed in URLs.",
-                ParseError::InvalidIpv4Address => "Invalid IPv4 address.",
-                ParseError::InvalidIpv6Address => "Invalid IPv6 address.",
-                _ => "",
+                GetFeedError::AccessError => "Cannot access to given URL.",
+                GetFeedError::ParseError(parse_err) => match parse_err {
+                    ParseFeedError::IoError(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
+                    ParseFeedError::JsonSerde(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
+                    ParseFeedError::JsonUnsupportedVersion(_) => "Unsupported JSON version on feed content.",
+                    ParseFeedError::ParseError(_) => "Cannot parse given URL: Entered URL is not an RSS feed.",
+                    ParseFeedError::XmlReader(_) => "Cannot read feed XML content: Looks like RSS content is broken."
+                },
             };
 
-            return followup.content(format!("Entered URL is not valid. {}", reason));
+            followup.content(format!("Cannot subscribe to <{url}>. Reason: {reason}",))
         }
     }
-
-    if reqwest::get(url.to_string()).await.is_ok() {
-        todo!("Implement subscribe command fully.");
-    }
-
-    followup.content("URL is valid.")
-
-    // if let Ok(req) = reqwest::get(url.to_string()).await {
-    //     let body = req.text().await.unwrap();
-
-    //     if let Ok(parsed) = parser::parse(body.as_bytes()) {
-    //         let prev_data =
-    //             db.get::<ServerData>(interaction.guild_id.unwrap().to_string().as_str());
-
-    //         let webhook_builder = CreateWebhook::new(parsed.title.unwrap().content).avatar(
-    //             &CreateAttachment::url(&ctx.http, parsed.icon.unwrap().link.unwrap().href.as_str())
-    //                 .await
-    //                 .unwrap(),
-    //         );
-    //         let webhook = ChannelId(prev_data.unwrap().feed_channel_id.unwrap().parse().unwrap())
-    //             .create_webhook(&ctx.http, webhook_builder)
-    //             .await;
-
-    //         let new_data: ServerData;
-    //         if prev_data.is_some() {
-    //             let mut feeds_list = prev_data.unwrap().feeds_list.unwrap();
-    //             feeds_list.push(FeedsList {
-    //                 feed_url: url.to_string(),
-    //                 webhook_url: webhook.unwrap().url().unwrap(),
-    //             });
-
-    //             new_data = ServerData {
-    //                 feeds_list: Some(feeds_list),
-    //                 ..prev_data.unwrap()
-    //             }
-    //         } else {
-    //             new_data = ServerData {
-    //                 feeds_list: Some(vec![FeedsList {
-    //                     feed_url: url.to_string(),
-    //                     webhook_url: "TEST".to_string(),
-    //                 }]),
-    //                 ..Default::default()
-    //             };
-    //         }
-
-    //         db.set(
-    //             interaction.guild_id.unwrap().to_string().as_str(),
-    //             &new_data,
-    //         )
-    //         .unwrap();
-    //     } else {
-    //         return followup.content("Cannot parse XML.");
-    //     };
-    // } else {
-    //     return followup.content("Cannot access to URL.");
-    // }
 }
 
 pub fn register() -> CreateApplicationCommand {

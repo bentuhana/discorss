@@ -6,13 +6,13 @@ use std::path::{Path, PathBuf};
 use pickledb::{PickleDb, PickleDbDumpPolicy};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Clone, Default)]
 pub struct ServerData {
     pub feed_channel_id: Option<String>,
     pub feeds_list: Option<Vec<FeedsList>>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct FeedsList {
     pub feed_url: String,
     pub webhook_url: String,
@@ -28,14 +28,11 @@ impl Database {
         database_path.pop();
 
         if read_dir(&database_path).is_err() {
-            match create_dir_all(&database_path) {
-                Ok(_) => Ok(()),
-                Err(err) => Err(err),
-            }
-        } else {
-            PickleDb::new_json(database_file_path, PickleDbDumpPolicy::AutoDump);
-            Ok(())
+            create_dir_all(&database_path)?
         }
+
+        PickleDb::new_json(database_file_path, PickleDbDumpPolicy::AutoDump);
+        Ok(())
     }
     pub fn load(dump_policy: Option<PickleDbDumpPolicy>) -> PickleDb {
         let database_file_path = env::var("DATABASE_FILE_PATH")

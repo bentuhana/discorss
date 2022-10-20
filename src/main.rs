@@ -15,12 +15,14 @@ use shard_manager::ShardManagerContainer;
 mod database;
 use database::Database;
 
+mod feed;
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();
 
     let token = env::var("BOT_TOKEN").expect("Expected BOT_TOKEN environment variable.");
-    let intents = GatewayIntents::empty();
+    let intents = GatewayIntents::GUILDS | GatewayIntents::GUILD_WEBHOOKS;
 
     let mut client = Client::builder(token, intents)
         .event_handler(Events)
