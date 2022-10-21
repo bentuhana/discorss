@@ -7,7 +7,7 @@ use feed_rs::{
 use pickledb::PickleDb;
 use reqwest::IntoUrl;
 
-use crate::database::ServerData;
+use crate::structs::database::ServerData;
 
 pub enum GetFeedError {
     AccessError,

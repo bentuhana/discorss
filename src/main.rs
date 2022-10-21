@@ -9,8 +9,8 @@ use serenity::Client;
 mod events;
 use events::Events;
 
-mod shard_manager;
-use shard_manager::ShardManagerContainer;
+mod structs;
+use structs::shard_manager::ShardManagerContainer;
 
 mod database;
 use database::Database;

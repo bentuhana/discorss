@@ -1,77 +1,60 @@
 use std::time::{Duration, Instant};
 
 use serenity::builder::{
-    CreateApplicationCommand, CreateInteractionResponse, CreateInteractionResponseData,
-    CreateInteractionResponseFollowup,
+    CreateApplicationCommand, CreateInteractionResponse, CreateInteractionResponseFollowup,
+    CreateInteractionResponseMessage,
 };
 use serenity::client::bridge::gateway::ShardId;
 use serenity::model::prelude::interaction::application_command::ResolvedOption;
-use serenity::model::prelude::{ApplicationCommandInteraction, InteractionResponseType};
+use serenity::model::prelude::ApplicationCommandInteraction;
 use serenity::prelude::Context;
 
-use crate::shard_manager::ShardManagerContainer;
+use crate::structs::shard_manager::ShardManagerContainer;
 
 pub async fn run(
     _options: &[ResolvedOption<'_>],
     ctx: &Context,
     interaction: &ApplicationCommandInteraction,
 ) {
-    let thinking_response_data = CreateInteractionResponseData::new();
-    let thinking_response = CreateInteractionResponse::new()
-        .kind(InteractionResponseType::DeferredChannelMessageWithSource)
-        .interaction_response_data(thinking_response_data);
-    let mut followup = CreateInteractionResponseFollowup::new();
+    let thinking_response_data = CreateInteractionResponseMessage::new();
+    let thinking_response = CreateInteractionResponse::Defer(thinking_response_data);
+    let followup = CreateInteractionResponseFollowup::new();
 
     let rest_latency_calculation_start = Instant::now();
     interaction
         .create_interaction_response(&ctx.http, thinking_response)
         .await
-        .ok();
+        .unwrap();
     let rest_latency = rest_latency_calculation_start.elapsed().as_millis();
 
+    let mut message =
+        format!("Pong! :ping_pong:\n\nREST latency: {rest_latency}ms\nGateway latency: ");
+
     let ctx_data = ctx.data.read().await;
-    let shard_manager = match ctx_data.get::<ShardManagerContainer>() {
-        Some(shard) => shard,
-        None => {
-            followup = followup.content("Could not get ShardManager.".to_string());
-            interaction
-                .create_followup_message(&ctx.http, followup)
-                .await
-                .ok();
+    if let Some(shard_manager) = ctx_data.get::<ShardManagerContainer>() {
+        let manager = shard_manager.lock().await;
+        let runners = manager.runners.lock().await;
 
-            return;
-        }
-    };
-    let manager = shard_manager.lock().await;
-    let runners = manager.runners.lock().await;
-    let runner = match runners.get(&ShardId(ctx.shard_id)) {
-        Some(runner) => runner,
-        None => {
-            followup = followup.content("Could not find any shard.");
-            interaction
-                .create_followup_message(&ctx.http, followup)
-                .await
-                .ok();
+        if let Some(runner) = runners.get(&ShardId(ctx.shard_id)) {
+            let gateway_latency = runner
+                .latency
+                .unwrap_or_else(|| Duration::from_millis(0))
+                .as_millis();
 
-            return;
-        }
-    };
-    let gateway_latency = runner
-        .latency
-        .unwrap_or_else(|| Duration::from_millis(0))
-        .as_millis();
-
-    followup = followup.content(format!(
-        "Pong! :ping_pong:\n\nREST latency: {rest_latency}ms\nGateway latency: {}",
-        if gateway_latency > 0 {
-            format!("{gateway_latency}ms")
+            if gateway_latency > 0 {
+                message.push_str(format!("{gateway_latency}ms").as_str());
+            } else {
+                message.push_str("No data avaliable at the moment.");
+            }
         } else {
-            "No data available at the moment.".to_string()
+            message.push_str("No data avaliable at the moment.");
         }
-    ));
+    } else {
+        message.push_str("No data avaliable at the moment.");
+    }
 
     interaction
-        .create_followup_message(&ctx.http, followup)
+        .create_followup_message(&ctx.http, followup.content(message))
         .await
         .ok();
 }

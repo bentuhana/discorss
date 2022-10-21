@@ -1,9 +1,9 @@
 use serenity::async_trait;
 use serenity::builder::{
-    CreateInteractionResponse, CreateInteractionResponseData, CreateInteractionResponseFollowup,
+    CreateInteractionResponse, CreateInteractionResponseFollowup, CreateInteractionResponseMessage,
 };
 use serenity::model::gateway::Ready;
-use serenity::model::prelude::{command::Command, Interaction, InteractionResponseType};
+use serenity::model::prelude::{command::Command, Interaction};
 use serenity::prelude::{Context, EventHandler};
 
 #[path = "commands/mod.rs"]
@@ -30,10 +30,8 @@ impl EventHandler for Events {
                     .content(format!("No such command found: {cmd}")),
             };
 
-            let thinking_response_data = CreateInteractionResponseData::new();
-            let thinking_response = CreateInteractionResponse::new()
-                .kind(InteractionResponseType::DeferredChannelMessageWithSource)
-                .interaction_response_data(thinking_response_data);
+            let thinking_response_data = CreateInteractionResponseMessage::new();
+            let thinking_response = CreateInteractionResponse::Defer(thinking_response_data);
 
             if let Err(why) = command
                 .create_interaction_response(&ctx.http, thinking_response)

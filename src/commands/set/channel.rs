@@ -5,7 +5,8 @@ use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::{ResolvedOption, ResolvedValue};
 use serenity::model::prelude::{ApplicationCommandInteraction, ChannelType};
 
-use crate::database::{Database, ServerData};
+use crate::database::Database;
+use crate::structs::database::ServerData;
 
 pub fn run(
     options: &[ResolvedOption],
@@ -14,8 +15,8 @@ pub fn run(
     let followup = CreateInteractionResponseFollowup::new();
     let mut db = Database::load(None);
 
-    let ResolvedValue::SubCommand(sub_command) = &options.get(0).unwrap().value else { return followup.content("SubCommand value not found."); };
-    let ResolvedValue::Channel(channel) = sub_command.get(0).unwrap().value else { return followup.content("Channel value not found."); };
+    let ResolvedValue::SubCommand(sub_command) = &options.get(0).unwrap().value else { return followup.content("Select a subcommand."); };
+    let ResolvedValue::Channel(channel) = sub_command.get(0).unwrap().value else { return followup.content("Mention a channel to set."); };
 
     if channel.kind != ChannelType::Text {
         return followup.content("Mentioned channel must be a text channel.");

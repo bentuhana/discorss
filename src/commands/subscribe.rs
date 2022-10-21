@@ -10,8 +10,9 @@ use serenity::model::prelude::interaction::application_command::{ResolvedOption,
 use serenity::model::prelude::{ApplicationCommandInteraction, ChannelId};
 use serenity::prelude::Context;
 
-use crate::database::{Database, FeedsList, ServerData};
+use crate::database::Database;
 use crate::feed::{FeedUtils, GetFeedError};
+use crate::structs::database::{FeedsList, ServerData};
 
 pub async fn run(
     options: &[ResolvedOption<'_>],
