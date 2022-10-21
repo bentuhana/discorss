@@ -10,9 +10,9 @@ lto = true
 codegen-units = 1
 
 [dependencies]
-dotenvy = "0.15"
+dotenvy = "0"
 url = "2"
-feed-rs = "1.2"
+feed-rs = "1"
 
 [dependencies.serenity]
 git = "https://github.com/serenity-rs/serenity"
@@ -37,11 +37,11 @@ version = "1"
 features = ["derive"]
 
 [dependencies.pickledb]
-version = "0.5"
+version = "0"
 default-features = false
 features = ["json"]
 
 [dependencies.reqwest]
-version = "0.11"
+version = "0"
 default-features = false
 features = ["rustls-tls"]
