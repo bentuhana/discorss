@@ -44,7 +44,7 @@ pub fn run(
 
 pub fn register() -> CreateApplicationCommand {
     CreateApplicationCommand::new("set")
-        .description("Sends gateway and REST latency values.")
+        .description("Set an option.")
         .add_option(
             CreateApplicationCommandOption::new(
                 CommandOptionType::SubCommand,

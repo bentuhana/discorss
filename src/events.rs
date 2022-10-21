@@ -15,7 +15,8 @@ impl EventHandler for Events {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
-                // Latency command is an exception and we are returning since we are calculating REST latency on
+                // Latency command is an exception and we are returning
+                // blank since we are calculating REST latency on
                 // commands/latency.rs#L25-L30
                 "latency" => {
                     commands::latency::run(&command.data.options(), &ctx, &command).await;
@@ -60,7 +61,7 @@ impl EventHandler for Events {
             commands::subscribe::register(),
         ];
 
-        if commands_to_register.len() >= registered_commands.unwrap().len() {
+        if commands_to_register.len() != registered_commands.unwrap().len() {
             if let Err(why) =
                 Command::set_global_application_commands(&ctx.http, commands_to_register).await
             {
@@ -68,6 +69,6 @@ impl EventHandler for Events {
             }
         }
 
-        println!("Connected to Discord as {}", ready.user.tag())
+        println!("Connected to Discord as {}!", ready.user.tag())
     }
 }

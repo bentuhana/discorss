@@ -47,7 +47,7 @@ pub async fn run(
     let runner = match runners.get(&ShardId(ctx.shard_id)) {
         Some(runner) => runner,
         None => {
-            followup = followup.content("Could not find any shard.".to_string());
+            followup = followup.content("Could not find any shard.");
             interaction
                 .create_followup_message(&ctx.http, followup)
                 .await
@@ -62,10 +62,9 @@ pub async fn run(
         .as_millis();
 
     followup = followup.content(format!(
-        "Pong! :ping_pong:\n\nREST latency: {}ms\nGateway latency: {}",
-        rest_latency,
+        "Pong! :ping_pong:\n\nREST latency: {rest_latency}ms\nGateway latency: {}",
         if gateway_latency > 0 {
-            format!("{}ms", gateway_latency)
+            format!("{gateway_latency}ms")
         } else {
             "No data available at the moment.".to_string()
         }

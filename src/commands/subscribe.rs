@@ -19,7 +19,9 @@ pub async fn run(
     interaction: &ApplicationCommandInteraction,
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
-    let guild_id = interaction.guild_id.unwrap().to_string();
+    let guild = interaction.guild_id.unwrap();
+    let guild_id = guild.to_string();
+
     let mut db = Database::load(None);
 
     let ResolvedValue::String(url) = &options.get(0).unwrap().value else { return followup.content("String value not found"); };
@@ -71,7 +73,7 @@ pub async fn run(
                 followup.content(format!("Subscribed to {url}"))
             } else {
                 followup.content(
-                    "Feed channel is not set. Please set feed updates channel and try again.",
+                    "Feed channel is not set. Please set feed updates channel with </set channel:1032703408399986841> and try again.",
                 )
             }
         }
