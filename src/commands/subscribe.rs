@@ -19,8 +19,7 @@ pub async fn run(
     interaction: &ApplicationCommandInteraction,
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
-    let guild = interaction.guild_id.unwrap();
-    let guild_id = guild.to_string();
+    let guild_id = interaction.guild_id.unwrap().to_string();
 
     let mut db = Database::load(None);
 
