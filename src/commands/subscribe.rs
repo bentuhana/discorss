@@ -34,7 +34,7 @@ pub async fn run(
         return followup.content("Entered URL is not valid.");
     }
 
-    if let Ok(feeds) = FeedUtils::get_subscriptions(guild_id.parse().unwrap(), &db) {
+    if let Ok(feeds) = FeedUtils::get_subscriptions(&guild_id, &db) {
         if feeds.contains(&url.to_string()) {
             return followup.content(format!("Already subscribed to {url}."));
         }
@@ -44,7 +44,7 @@ pub async fn run(
         Ok(feed) => {
             let feed_title = feed.title.unwrap().content;
 
-            let prev_data = db.get::<ServerData>(guild_id.as_str());
+            let prev_data = db.get::<ServerData>(&guild_id);
 
             if let Some(data) = prev_data {
                 let cloned_data = data.clone();

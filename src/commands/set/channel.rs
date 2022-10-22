@@ -13,6 +13,7 @@ pub fn run(
     interaction: &ApplicationCommandInteraction,
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
+    let guild_id = interaction.guild_id.unwrap().to_string();
     let mut db = Database::load(None);
 
     let ResolvedValue::SubCommand(sub_command) = &options.get(0).unwrap().value else { return followup.content("Select a subcommand."); };
@@ -23,9 +24,7 @@ pub fn run(
     }
 
     let data: ServerData;
-    if let Some(prev_data) =
-        db.get::<ServerData>(interaction.guild_id.unwrap().to_string().as_str())
-    {
+    if let Some(prev_data) = db.get::<ServerData>(&guild_id) {
         data = ServerData {
             feed_channel_id: Some(channel.id.to_string()),
             ..prev_data
@@ -37,8 +36,7 @@ pub fn run(
         };
     }
 
-    db.set(interaction.guild_id.unwrap().to_string().as_str(), &data)
-        .unwrap();
+    db.set(&guild_id, &data).unwrap();
 
     followup.content(format!("Feed updates channel is set to <#{}>.", channel.id))
 }

@@ -1,5 +1,3 @@
-use std::num::NonZeroU64;
-
 use feed_rs::{
     model::Feed,
     parser::{self, ParseFeedError},
@@ -29,8 +27,8 @@ impl FeedUtils {
         }
     }
 
-    pub fn get_subscriptions(guild_id: NonZeroU64, db: &PickleDb) -> Result<Vec<String>, ()> {
-        if let Some(data) = db.get::<ServerData>(guild_id.to_string().as_str()) {
+    pub fn get_subscriptions(guild_id: &str, db: &PickleDb) -> Result<Vec<String>, ()> {
+        if let Some(data) = db.get::<ServerData>(guild_id) {
             let mut feeds = vec![];
 
             if let Some(feeds_list) = data.feeds_list {

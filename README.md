@@ -1,9 +1,7 @@
 # discorss
 
-i just started to learn rust so my codes might be bad.
+I just started to learn Rust, expect bad codes.
 
-### self notes
-
-- updates will be sent with webhooks. a specific feed webhook will be created for channel to send.
-- gettext-rs for translations
-  - po/{tr,de,fr}.po
+## todo
+- handle errors carefully
+  - currenty I use `.except()` everywhere. instead of crashing the bot, it's better to send a message.
