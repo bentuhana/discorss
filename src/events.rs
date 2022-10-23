@@ -6,26 +6,23 @@ use serenity::model::gateway::Ready;
 use serenity::model::prelude::{command::Command, Interaction};
 use serenity::prelude::{Context, EventHandler};
 
-#[path = "commands/mod.rs"]
-mod commands;
+use crate::commands;
 
 pub struct Events;
 #[async_trait]
 impl EventHandler for Events {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-        if let Interaction::ApplicationCommand(command) = interaction {
+        if let Interaction::Command(command) = interaction {
             let content = match command.data.name.as_str() {
-                // Latency command is an exception and we are returning
-                // blank since we are calculating REST latency on
-                // commands/latency.rs#L25-L30
+                // Latency command is an exception and we are
+                // returning since we are calculating REST latency
+                // on commands/latency.rs#L23-L38
                 "latency" => {
                     commands::latency::run(&command.data.options(), &ctx, &command).await;
                     return;
                 }
-                "set" => commands::set::channel::run(&command.data.options(), &command),
-                "subscribe" => {
-                    commands::subscribe::run(&command.data.options(), &ctx, &command).await
-                }
+                "set" => commands::set::channel::run(&command.data.options(), &ctx, &command).await,
+                "subscribe" => commands::subscribe::run(&command.data.options(), &command).await,
                 cmd => CreateInteractionResponseFollowup::new()
                     .content(format!("No such command found: {cmd}")),
             };

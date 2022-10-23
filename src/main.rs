@@ -15,6 +15,7 @@ use structs::shard_manager::ShardManagerContainer;
 mod database;
 use database::Database;
 
+mod commands;
 mod feed;
 
 #[tokio::main]

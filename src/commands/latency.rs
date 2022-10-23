@@ -1,21 +1,17 @@
 use std::time::{Duration, Instant};
 
 use serenity::builder::{
-    CreateApplicationCommand, CreateInteractionResponse, CreateInteractionResponseFollowup,
+    CreateCommand, CreateInteractionResponse, CreateInteractionResponseFollowup,
     CreateInteractionResponseMessage,
 };
 use serenity::client::bridge::gateway::ShardId;
 use serenity::model::prelude::interaction::application_command::ResolvedOption;
-use serenity::model::prelude::ApplicationCommandInteraction;
+use serenity::model::prelude::CommandInteraction;
 use serenity::prelude::Context;
 
 use crate::structs::shard_manager::ShardManagerContainer;
 
-pub async fn run(
-    _options: &[ResolvedOption<'_>],
-    ctx: &Context,
-    interaction: &ApplicationCommandInteraction,
-) {
+pub async fn run(_options: &[ResolvedOption<'_>], ctx: &Context, interaction: &CommandInteraction) {
     let thinking_response_data = CreateInteractionResponseMessage::new();
     let thinking_response = CreateInteractionResponse::Defer(thinking_response_data);
     let followup = CreateInteractionResponseFollowup::new();
@@ -59,6 +55,6 @@ pub async fn run(
         .ok();
 }
 
-pub fn register() -> CreateApplicationCommand {
-    CreateApplicationCommand::new("latency").description("Sends gateway and REST latency values.")
+pub fn register() -> CreateCommand {
+    CreateCommand::new("latency").description("Sends gateway and REST latency values.")
 }

@@ -3,9 +3,8 @@ use feed_rs::{
     parser::{self, ParseFeedError},
 };
 use pickledb::PickleDb;
-use reqwest::IntoUrl;
 
-use crate::structs::database::ServerData;
+use crate::structs::feed::ServerData;
 
 pub enum GetFeedError {
     AccessError,
@@ -14,7 +13,7 @@ pub enum GetFeedError {
 
 pub struct FeedUtils;
 impl FeedUtils {
-    pub async fn get_feed<U: IntoUrl>(url: U) -> Result<Feed, GetFeedError> {
+    pub async fn get_feed(url: &str) -> Result<Feed, GetFeedError> {
         if let Ok(response) = reqwest::get(url).await {
             let body = response.text().await.unwrap();
 
@@ -29,15 +28,7 @@ impl FeedUtils {
 
     pub fn get_subscriptions(guild_id: &str, db: &PickleDb) -> Result<Vec<String>, ()> {
         if let Some(data) = db.get::<ServerData>(guild_id) {
-            let mut feeds = vec![];
-
-            if let Some(feeds_list) = data.feeds_list {
-                for feed in feeds_list.into_iter() {
-                    feeds.push(feed.feed_url)
-                }
-            }
-
-            Ok(feeds)
+            Ok(data.feeds_list.unwrap_or_default())
         } else {
             Err(())
         }
