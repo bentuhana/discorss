@@ -15,7 +15,7 @@ on:
       - ".github/workflows/ci.yaml"
 
 jobs:
-  check:
+  lint_and_build:
     name: Lint and Build
     runs-on: ubuntu-latest
     strategy:
@@ -60,7 +60,8 @@ jobs:
   container_image:
     name: Create container image
     runs-on: ubuntu-latest
-    if: github.event_name == 'commit'
+    needs: lint_and_build
+    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
