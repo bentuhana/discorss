@@ -81,7 +81,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: discorss-rs
-          tags: main-${{ env.GITHUB_SHA_CUT }}
+          tags: main main-${{ env.GITHUB_SHA_CUT }}
           containerfiles: |
             ./Containerfile
 
