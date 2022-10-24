@@ -22,7 +22,13 @@ impl EventHandler for Events {
                     return;
                 }
                 "set" => commands::set::channel::run(&command.data.options(), &ctx, &command).await,
+                "unset" => {
+                    commands::unset::channel::run(&command.data.options(), &ctx, &command).await
+                }
                 "subscribe" => commands::subscribe::run(&command.data.options(), &command).await,
+                "unsubscribe" => {
+                    commands::unsubscribe::run(&command.data.options(), &command).await
+                }
                 cmd => CreateInteractionResponseFollowup::new()
                     .content(format!("No such command found: {cmd}")),
             };
@@ -53,10 +59,12 @@ impl EventHandler for Events {
         let commands_to_register = vec![
             commands::latency::register(),
             commands::set::channel::register(),
+            commands::unset::channel::register(),
             commands::subscribe::register(),
+            commands::unsubscribe::register(),
         ];
 
-        if commands_to_register.len() != registered_commands.unwrap().len() {
+        if commands_to_register.len() >= registered_commands.unwrap().len() {
             if let Err(why) =
                 Command::set_global_application_commands(&ctx.http, commands_to_register).await
             {

@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use serenity::model::prelude::{ChannelId, WebhookId};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct ServerData {
     pub feed_channel_id: Option<ChannelId>,
     pub feed_webhook: Option<FeedWebhook>,
@@ -9,6 +10,7 @@ pub struct ServerData {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct FeedWebhook {
     pub id: WebhookId,
     pub token: String,
