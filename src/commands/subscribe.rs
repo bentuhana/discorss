@@ -51,8 +51,6 @@ pub async fn run(
                     ..Default::default()
                 }
             }
-
-            db.set(&guild_id, &data).unwrap();
         }
         Err(err) => {
             let reason = match err {
@@ -70,6 +68,7 @@ pub async fn run(
         }
     }
 
+    db.set(&guild_id, &data).unwrap();
     followup.content(format!("Subscribed to <{url}>."))
 }
 
