@@ -10,15 +10,7 @@ lto = true
 codegen-units = 1
 
 [dependencies]
-dotenvy = "0"
-url = "2"
-feed-rs = "1"
-
-[dependencies.serenity]
-git = "https://github.com/serenity-rs/serenity"
-branch = "next"
-default-features = false
-features = [
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", default_features = false, features = [
   "builder",
   "client",
   "gateway",
@@ -26,22 +18,17 @@ features = [
   "model",
   "time",
   "rustls_backend",
-]
-
-[dependencies.tokio]
-version = "1"
-features = ["rt-multi-thread"]
-
-[dependencies.serde]
-version = "1"
-features = ["derive"]
-
-[dependencies.pickledb]
-version = "0"
-default-features = false
-features = ["json"]
-
-[dependencies.reqwest]
-version = "0"
-default-features = false
-features = ["rustls-tls"]
+] }
+tokio = { version = "1", default-features = false, features = [
+  "macros",
+  "rt-multi-thread",
+] }
+serde = { version = "1", default-features = false, features = ['derive'] }
+pickledb = { version = "0", default-features = false, features = ["json"] }
+reqwest = { version = "0", default-features = false, features = ["rustls-tls"] }
+tracing = "0"
+tracing-subscriber = { version = "0", features = ["env-filter"] }
+tracing-appender = "0"
+dotenvy = "0"
+url = "2"
+feed-rs = "1"

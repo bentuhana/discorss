@@ -6,21 +6,25 @@ use dotenvy::dotenv;
 use serenity::model::gateway::GatewayIntents;
 use serenity::Client;
 
+#[macro_use(info, warn, error)]
+extern crate tracing;
+
 mod events;
 use events::Events;
-
-mod structs;
-use structs::shard_manager::ShardManagerContainer;
 
 mod database;
 use database::Database;
 
 mod commands;
 mod feed;
+mod logger;
+mod structs;
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+
+    logger::Logger::set_logger().unwrap();
 
     let token = env::var("BOT_TOKEN").expect("Expected BOT_TOKEN environment variable.");
     let intents = GatewayIntents::GUILDS | GatewayIntents::GUILD_WEBHOOKS;
@@ -31,6 +35,8 @@ async fn main() {
         .expect("Could not build client.");
 
     {
+        use structs::shard_manager::ShardManagerContainer;
+
         let mut client_data = client.data.write().await;
         client_data.insert::<ShardManagerContainer>(client.shard_manager.clone());
     }
@@ -39,11 +45,11 @@ async fn main() {
         env::var("DATABASE_FILE_PATH").expect("Expected DATABASE_FILE_PATH environment variable.");
     if File::open(&database_file_path).is_err() {
         if let Err(why) = Database::new(&database_file_path) {
-            println!("Error occurred when creating database file. {:#?}", why);
+            error!("Error occurred when creating database file. {:#?}", why);
         }
     }
 
     if let Err(why) = client.start().await {
-        println!("Error occurred when starting the client. {:#?}", why);
+        error!("Error occurred when starting the client. {:#?}", why);
     }
 }

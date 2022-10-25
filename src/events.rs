@@ -40,13 +40,13 @@ impl EventHandler for Events {
                 .create_interaction_response(&ctx.http, thinking_response)
                 .await
             {
-                println!(
+                warn!(
                     "Cannot create thinking instance on command {}: {why}",
                     command.data.name
                 )
             }
             if let Err(why) = command.create_followup_message(&ctx.http, content).await {
-                println!(
+                warn!(
                     "Cannot respond to thinking instance on command {}: {why}",
                     command.data.name
                 )
@@ -68,10 +68,10 @@ impl EventHandler for Events {
             if let Err(why) =
                 Command::set_global_application_commands(&ctx.http, commands_to_register).await
             {
-                println!("Error when registering global commands: {why}")
+                error!("Error when registering global commands: {why}")
             }
         }
 
-        println!("Connected to Discord as {}!", ready.user.tag())
+        info!("Connected to Discord as {}!", ready.user.tag())
     }
 }
