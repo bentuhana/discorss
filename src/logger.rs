@@ -6,7 +6,7 @@ pub struct Logger;
 impl Logger {
     pub fn set_logger() -> Result<(), tracing::subscriber::SetGlobalDefaultError> {
         let file_appender = tracing_appender::rolling::daily(
-            env::var("LOGS_STORE_FOLDER").unwrap_or("./logs".to_string()),
+            env::var("LOGS_STORE_FOLDER").unwrap_or_else(|_| "./logs".to_string()),
             "discorss.log",
         );
         let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);

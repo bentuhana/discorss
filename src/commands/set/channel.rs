@@ -42,6 +42,7 @@ pub async fn run(
         if current_data.feed_webhook.is_some() {
             let current_webhook = current_data.feed_webhook.unwrap();
             // TODO: fix editing Webhook not working.
+            // ! This might be serenity's issue.
             if let Ok(edited_webhook) = EditWebhook::new()
                 .channel_id(channel.id)
                 .execute(&ctx.http, current_webhook.id, Some(&current_webhook.token))
