@@ -18,7 +18,7 @@ pub async fn run(_options: &[ResolvedOption<'_>], ctx: &Context, interaction: &C
 
     let rest_latency_calculation_start = Instant::now();
     interaction
-        .create_interaction_response(&ctx.http, thinking_response)
+        .create_response(&ctx.http, thinking_response)
         .await
         .unwrap();
     let rest_latency = rest_latency_calculation_start.elapsed().as_millis();
@@ -50,7 +50,7 @@ pub async fn run(_options: &[ResolvedOption<'_>], ctx: &Context, interaction: &C
     }
 
     interaction
-        .create_followup_message(&ctx.http, followup.content(message))
+        .create_followup(&ctx.http, followup.content(message))
         .await
         .ok();
 }

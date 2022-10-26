@@ -36,16 +36,13 @@ impl EventHandler for Events {
             let thinking_response_data = CreateInteractionResponseMessage::new();
             let thinking_response = CreateInteractionResponse::Defer(thinking_response_data);
 
-            if let Err(why) = command
-                .create_interaction_response(&ctx.http, thinking_response)
-                .await
-            {
+            if let Err(why) = command.create_response(&ctx.http, thinking_response).await {
                 warn!(
                     "Cannot create thinking instance on command {}: {why}",
                     command.data.name
                 )
             }
-            if let Err(why) = command.create_followup_message(&ctx.http, content).await {
+            if let Err(why) = command.create_followup(&ctx.http, content).await {
                 warn!(
                     "Cannot respond to thinking instance on command {}: {why}",
                     command.data.name
