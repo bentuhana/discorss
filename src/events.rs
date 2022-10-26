@@ -29,6 +29,8 @@ impl EventHandler for Events {
                 "unsubscribe" => {
                     commands::unsubscribe::run(&command.data.options(), &command).await
                 }
+                "import" => commands::import::run(&command.data.options(), &command).await,
+                "export" => commands::export::run(&command.data.options(), &command),
                 cmd => CreateInteractionResponseFollowup::new()
                     .content(format!("No such command found: {cmd}")),
             };
@@ -59,6 +61,8 @@ impl EventHandler for Events {
             commands::unset::channel::register(),
             commands::subscribe::register(),
             commands::unsubscribe::register(),
+            commands::import::register(),
+            commands::export::register(),
         ];
 
         if commands_to_register.len() >= registered_commands.unwrap().len() {
