@@ -5,7 +5,7 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 pub struct Logger;
 impl Logger {
     pub fn set_logger() -> Result<(), tracing::subscriber::SetGlobalDefaultError> {
-        let file_appender = tracing_appender::rolling::daily(
+        let file_appender = tracing_appender::rolling::hourly(
             env::var("LOGS_STORE_FOLDER").unwrap_or_else(|_| "./logs".to_string()),
             "discorss.log",
         );
