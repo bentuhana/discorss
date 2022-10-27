@@ -55,15 +55,15 @@ pub async fn run(
             let reason = match err {
                 GetFeedError::AccessError => "Cannot access to given URL.",
                 GetFeedError::ParseError(parse_err) => match parse_err {
-                    ParseFeedError::IoError(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
-                    ParseFeedError::JsonSerde(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
+                    ParseFeedError::IoError(_) => "An error occured while reading RSS file. If this keeps happening, please report the issue to the developer.",
+                    ParseFeedError::JsonSerde(_) => "An error occurred while reading JSON content. If this keeps happening, please report the issue to the developer.",
                     ParseFeedError::JsonUnsupportedVersion(_) => "Unsupported JSON version on feed content.",
                     ParseFeedError::ParseError(_) => "Entered URL is not an RSS feed.",
                     ParseFeedError::XmlReader(_) => "RSS content is broken on entered feed."
                 },
             };
 
-            return followup.content(format!("Cannot subscribe to <{url}>. Reason: {reason}"));
+            return followup.content(format!("Cannot subscribe to <{url}>. {reason}"));
         }
     };
 

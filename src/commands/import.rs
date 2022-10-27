@@ -1,4 +1,4 @@
-use opml::OPML;
+use opml::{Error, OPML};
 
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateInteractionResponseFollowup};
 use serenity::model::prelude::command::CommandOptionType;
@@ -26,10 +26,10 @@ pub async fn run(
         Ok(doc) => doc,
         Err(err) => {
             let reason = match err {
-                opml::Error::BodyHasNoOutlines => "OPML file has no RSS feed.",
-                opml::Error::IoError(_) => "An error occurred while reading OPML file. If this keeps happening, please contact to a developer.",
-                opml::Error::UnsupportedVersion(_) => "Unsupported version or out-of-standard OPML file.",
-                opml::Error::XmlError(_) => "An error occurred while parsing OPML file. If this keeps happening, please contact to a developer."
+                Error::BodyHasNoOutlines => "OPML file has no RSS feed.",
+                Error::IoError(_) => "An error occurred while reading OPML file. If this keeps happening, please contact to a developer.",
+                Error::UnsupportedVersion(_) => "Unsupported version or out-of-standard OPML file.",
+                Error::XmlError(_) => "An error occurred while parsing OPML file. If this keeps happening, please contact to a developer."
             };
 
             return followup.content(format!("Cannot import OPML file. {reason}"));
