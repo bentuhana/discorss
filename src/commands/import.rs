@@ -18,26 +18,25 @@ pub async fn run(
     let guild_id = interaction.guild_id.unwrap().to_string();
     let ResolvedValue::Attachment(file) = &options.get(0).unwrap().value else { return followup.content("String value not found"); };
 
-    let opml_file = match file.download().await {
-        Ok(content) => content,
-        Err(_) => return followup.content("Cannot download attachment."),
-    };
-    let opml_document = match OPML::from_str(&String::from_utf8_lossy(&opml_file)) {
-        Ok(doc) => doc,
-        Err(err) => {
-            let reason = match err {
-                Error::BodyHasNoOutlines => "OPML file has no RSS feed.",
-                Error::IoError(_) => "An error occurred while reading OPML file. If this keeps happening, please contact to a developer.",
-                Error::UnsupportedVersion(_) => "Unsupported version or out-of-standard OPML file.",
-                Error::XmlError(_) => "An error occurred while parsing OPML file. If this keeps happening, please contact to a developer."
-            };
+    let opml_struct = match file.download().await {
+        Ok(content) => match OPML::from_str(&String::from_utf8_lossy(&content)) {
+            Ok(document) => document,
+            Err(err) => {
+                let reason = match err {
+                    Error::BodyHasNoOutlines => "OPML file has no RSS feed.",
+                    Error::IoError(_) => "An error occurred while reading OPML file. If this keeps happening, please contact to a developer.",
+                    Error::UnsupportedVersion(_) => "Unsupported version or out-of-standard OPML file.",
+                    Error::XmlError(_) => "An error occurred while parsing OPML file. If this keeps happening, please contact to a developer."
+                };
 
-            return followup.content(format!("Cannot import OPML file. {reason}"));
-        }
+                return followup.content(format!("Cannot import OPML file. {reason}"));
+            }
+        },
+        Err(_) => return followup.content("Cannot download attachment."),
     };
 
     let mut feeds_list = vec![];
-    for outline in opml_document.body.outlines {
+    for outline in opml_struct.body.outlines {
         if outline.outlines.is_empty() {
             feeds_list.push(outline.xml_url.unwrap())
         } else {

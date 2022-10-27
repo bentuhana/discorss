@@ -46,12 +46,14 @@ pub async fn run(_options: &[ResolvedOption<'_>], ctx: &Context, interaction: &C
         }
         None => "No data avaliable at the moment.".to_string(),
     };
-    let message = format!(
-        "Pong! :ping_pong:\n\nREST latency: {rest_latency}ms\nGateway latency: {message_end}"
-    );
 
     interaction
-        .create_followup(&ctx.http, followup.content(message))
+        .create_followup(
+            &ctx.http,
+            followup.content(format!(
+            "Pong! :ping_pong:\n\nREST latency: {rest_latency}ms\nGateway latency: {message_end}"
+        )),
+        )
         .await
         .ok();
 }

@@ -20,11 +20,10 @@ pub async fn run(
 
     let mut db = Database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
-    let sub_command = &options.get(0).unwrap().name;
 
     let followup_content = match db.get::<ServerData>(&guild_id) {
         Some(current_data) => {
-            if *sub_command == "all" {
+            if options.get(0).unwrap().name == "all" {
                 db.set(
                     &guild_id,
                     &ServerData {
@@ -34,11 +33,11 @@ pub async fn run(
                 )
                 .unwrap();
 
-                "Unsubscribed from all RSS feeds.".to_owned()
+                "Unsubscribed from all RSS feeds.".to_string()
             } else {
-                if current_data.feeds_list.is_none()
-                    || current_data.feeds_list.as_ref().unwrap().is_empty()
-                {
+                // TODO: use Option::is_some_and() when it lands to Rust.
+                // * Tracking issue: https://github.com/rust-lang/rust/issues/93050
+                if matches!(current_data.feeds_list.as_ref(), Some(list) if list.is_empty()) {
                     return followup.content("Not subscribed already.");
                 }
 
@@ -75,7 +74,7 @@ pub async fn run(
                 format!("Unsubscribed from <{url}>")
             }
         }
-        None => "No subscription already.".to_owned(),
+        None => "No subscription already.".to_string(),
     };
 
     followup.content(followup_content)

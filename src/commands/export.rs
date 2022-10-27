@@ -19,12 +19,12 @@ pub fn run(
 
     let attachment = match db.get::<ServerData>(&guild_id) {
         Some(current_data) => {
-            let mut opml = OPML::default();
             let current_feeds_list = current_data.feeds_list;
             if current_feeds_list.is_none() {
                 return followup.content("No subscription.");
             }
 
+            let mut opml = OPML::default();
             for feed in current_feeds_list.unwrap() {
                 opml.add_feed(Url::parse(&feed).unwrap().host_str().unwrap(), &feed);
             }
