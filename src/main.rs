@@ -1,5 +1,4 @@
 use std::env;
-use std::fs::File;
 
 use dotenvy::dotenv;
 
@@ -43,10 +42,8 @@ async fn main() {
 
     let database_file_path =
         env::var("DATABASE_FILE_PATH").unwrap_or_else(|_| "./data/database.json".to_string());
-    if File::open(&database_file_path).is_err() {
-        if let Err(why) = Database::new(&database_file_path) {
-            error!("Error occurred when creating database file. {:#?}", why);
-        }
+    if let Err(why) = Database::new(database_file_path) {
+        error!("Error occurred when creating database file. {:#?}", why);
     }
 
     if let Err(why) = client.start().await {
