@@ -1,16 +1,15 @@
 use std::env;
 use std::fs::{create_dir_all, read_dir};
 use std::io::Error;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use pickledb::{PickleDb, PickleDbDumpPolicy};
 
 pub struct Database;
 #[allow(clippy::new_ret_no_self)]
 impl Database {
-    pub fn new<P: AsRef<Path>>(db_path: P) -> Result<(), Error> {
-        let mut database_file_path = PathBuf::new();
-        database_file_path.push(db_path);
+    pub fn new(db_path: String) -> Result<(), Error> {
+        let database_file_path = PathBuf::from(db_path);
         let mut database_path = database_file_path.clone();
         database_path.pop();
 
