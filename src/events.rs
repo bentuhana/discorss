@@ -12,11 +12,11 @@ pub struct Events;
 #[async_trait]
 impl EventHandler for Events {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-        if let Interaction::Command(command) = interaction {
+        if let Interaction::Command(command) = interaction.clone() {
             let content = match command.data.name.as_str() {
                 // Latency command is an exception and we are
                 // returning since we are calculating REST latency
-                // on commands/latency.rs#L23-L38
+                // on commands/latency.rs#L19-L24
                 "latency" => {
                     commands::latency::run(&command.data.options(), &ctx, &command).await;
                     return;
@@ -47,6 +47,26 @@ impl EventHandler for Events {
             if let Err(why) = command.create_followup(&ctx.http, content).await {
                 warn!(
                     "Cannot respond to thinking instance on command {}: {why}",
+                    command.data.name
+                )
+            }
+        }
+
+        if let Interaction::Autocomplete(command) = interaction {
+            let autocomplete = match command.data.name.as_str() {
+                "unsubscribe" => commands::unsubscribe::autocomplete(&command),
+                _ => return,
+            };
+
+            if let Err(why) = command
+                .create_response(
+                    &ctx.http,
+                    CreateInteractionResponse::Autocomplete(autocomplete),
+                )
+                .await
+            {
+                warn!(
+                    "Cannot create autocomplete on command {}: {why}",
                     command.data.name
                 )
             }
