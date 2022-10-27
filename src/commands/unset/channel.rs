@@ -1,7 +1,7 @@
 use serenity::builder::{CreateCommand, CreateCommandOption, CreateInteractionResponseFollowup};
 use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::ResolvedOption;
-use serenity::model::prelude::{CommandInteraction, ResolvedValue};
+use serenity::model::prelude::CommandInteraction;
 use serenity::model::webhook::Webhook;
 use serenity::prelude::Context;
 
@@ -9,7 +9,7 @@ use crate::database::Database;
 use crate::structs::feed::ServerData;
 
 pub async fn run(
-    options: &[ResolvedOption<'_>],
+    _options: &[ResolvedOption<'_>],
     ctx: &Context,
     interaction: &CommandInteraction,
 ) -> CreateInteractionResponseFollowup {
@@ -17,7 +17,6 @@ pub async fn run(
 
     let mut db = Database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
-    let ResolvedValue::SubCommand(_) = &options.get(0).unwrap().value else { return followup.content("Select a subcommand."); };
 
     let data = match db.get::<ServerData>(&guild_id) {
         Some(current_data) => {
