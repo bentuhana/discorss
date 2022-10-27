@@ -88,6 +88,8 @@ pub fn autocomplete(interaction: &CommandInteraction) -> CreateAutocompleteRespo
 
     let feeds_list = match db.get::<ServerData>(&guild_id) {
         Some(current_data) => {
+            // TODO: use Option::is_some_and() when it lands to Rust.
+            // * Tracking issue: https://github.com/rust-lang/rust/issues/93050
             if matches!(current_data.feeds_list.as_ref(), Some(list) if !list.is_empty()) {
                 current_data.feeds_list.unwrap()
             } else {

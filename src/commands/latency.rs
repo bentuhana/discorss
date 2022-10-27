@@ -23,31 +23,32 @@ pub async fn run(_options: &[ResolvedOption<'_>], ctx: &Context, interaction: &C
         .unwrap();
     let rest_latency = rest_latency_calculation_start.elapsed().as_millis();
 
-    let mut message =
-        format!("Pong! :ping_pong:\n\nREST latency: {rest_latency}ms\nGateway latency: ");
-
     let ctx_data = ctx.data.read().await;
-    if let Some(shard_manager) = ctx_data.get::<ShardManagerContainer>() {
-        let manager = shard_manager.lock().await;
-        let runners = manager.runners.lock().await;
+    let message_end = match ctx_data.get::<ShardManagerContainer>() {
+        Some(shard_manager) => {
+            let manager = shard_manager.lock().await;
+            let runners = manager.runners.lock().await;
 
-        if let Some(runner) = runners.get(&ShardId(ctx.shard_id)) {
-            let gateway_latency = runner
-                .latency
-                .unwrap_or_else(|| Duration::from_millis(0))
-                .as_millis();
+            if let Some(runner) = runners.get(&ShardId(ctx.shard_id)) {
+                let gateway_latency = runner
+                    .latency
+                    .unwrap_or_else(|| Duration::from_millis(0))
+                    .as_millis();
 
-            if gateway_latency > 0 {
-                message.push_str(format!("{gateway_latency}ms").as_str());
+                if gateway_latency > 0 {
+                    format!("{gateway_latency}ms")
+                } else {
+                    "No data avaliable at the moment.".to_string()
+                }
             } else {
-                message.push_str("No data avaliable at the moment.");
+                "No data avaliable at the moment.".to_string()
             }
-        } else {
-            message.push_str("No data avaliable at the moment.");
         }
-    } else {
-        message.push_str("No data avaliable at the moment.");
-    }
+        None => "No data avaliable at the moment.".to_string(),
+    };
+    let message = format!(
+        "Pong! :ping_pong:\n\nREST latency: {rest_latency}ms\nGateway latency: {message_end}"
+    );
 
     interaction
         .create_followup(&ctx.http, followup.content(message))

@@ -34,19 +34,18 @@ pub async fn run(
         }
     }
 
-    let data: ServerData;
-    match FeedUtils::get_feed(url).await {
+    let data = match FeedUtils::get_feed(url).await {
         Ok(_) => {
             if let Some(current_data) = db.get::<ServerData>(&guild_id) {
                 let mut feeds_list = current_data.feeds_list.unwrap_or_default();
                 feeds_list.push(url.to_string());
 
-                data = ServerData {
+                ServerData {
                     feeds_list: Some(feeds_list),
                     ..current_data
                 }
             } else {
-                data = ServerData {
+                ServerData {
                     feeds_list: Some(vec![url.to_string()]),
                     ..Default::default()
                 }
@@ -54,19 +53,19 @@ pub async fn run(
         }
         Err(err) => {
             let reason = match err {
-                            GetFeedError::AccessError => "Cannot access to given URL.",
-                            GetFeedError::ParseError(parse_err) => match parse_err {
-                                ParseFeedError::IoError(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
-                                ParseFeedError::JsonSerde(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
-                                ParseFeedError::JsonUnsupportedVersion(_) => "Unsupported JSON version on feed content.",
-                                ParseFeedError::ParseError(_) => "Entered URL is not an RSS feed.",
-                                ParseFeedError::XmlReader(_) => "RSS content is broken on entered feed."
-                            },
-                        };
+                GetFeedError::AccessError => "Cannot access to given URL.",
+                GetFeedError::ParseError(parse_err) => match parse_err {
+                    ParseFeedError::IoError(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
+                    ParseFeedError::JsonSerde(_) => "Unexpected error when parsing feed content. If this keeps happening, please report the issue to the developer.",
+                    ParseFeedError::JsonUnsupportedVersion(_) => "Unsupported JSON version on feed content.",
+                    ParseFeedError::ParseError(_) => "Entered URL is not an RSS feed.",
+                    ParseFeedError::XmlReader(_) => "RSS content is broken on entered feed."
+                },
+            };
 
-            return followup.content(format!("Cannot subscribe to <{url}>. Reason: {reason}",));
+            return followup.content(format!("Cannot subscribe to <{url}>. Reason: {reason}"));
         }
-    }
+    };
 
     db.set(&guild_id, &data).unwrap();
     followup.content(format!("Subscribed to <{url}>."))

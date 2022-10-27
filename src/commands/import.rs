@@ -22,7 +22,7 @@ pub async fn run(
         Ok(content) => content,
         Err(_) => return followup.content("Cannot download attachment."),
     };
-    let ompl_document = match OPML::from_str(&String::from_utf8_lossy(&opml_file)) {
+    let opml_document = match OPML::from_str(&String::from_utf8_lossy(&opml_file)) {
         Ok(doc) => doc,
         Err(err) => {
             let reason = match err {
@@ -37,7 +37,7 @@ pub async fn run(
     };
 
     let mut feeds_list = vec![];
-    for outline in ompl_document.body.outlines {
+    for outline in opml_document.body.outlines {
         if outline.outlines.is_empty() {
             feeds_list.push(outline.xml_url.unwrap())
         } else {
@@ -47,19 +47,19 @@ pub async fn run(
         }
     }
 
-    let data: ServerData;
-    if let Some(current_data) = db.get::<ServerData>(&guild_id) {
-        let current_feeds_list = current_data.feeds_list.unwrap_or_default();
-        data = ServerData {
-            feeds_list: Some([current_feeds_list.as_slice(), feeds_list.as_slice()].concat()),
-            ..current_data
-        };
-    } else {
-        data = ServerData {
+    let data = match db.get::<ServerData>(&guild_id) {
+        Some(current_data) => {
+            let current_feeds_list = current_data.feeds_list.unwrap_or_default();
+            ServerData {
+                feeds_list: Some([current_feeds_list.as_slice(), feeds_list.as_slice()].concat()),
+                ..current_data
+            }
+        }
+        None => ServerData {
             feeds_list: Some(feeds_list),
             ..Default::default()
-        };
-    }
+        },
+    };
 
     db.set(&guild_id, &data).unwrap();
     followup.content("Imported.")

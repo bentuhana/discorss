@@ -17,22 +17,22 @@ pub fn run(
     let db = Database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
 
-    let mut opml = OPML::default();
-    if let Some(current_data) = db.get::<ServerData>(&guild_id) {
-        let current_feeds_list = current_data.feeds_list;
-        if current_feeds_list.is_none() {
-            return followup.content("No subscription.");
-        }
+    let attachment = match db.get::<ServerData>(&guild_id) {
+        Some(current_data) => {
+            let mut opml = OPML::default();
+            let current_feeds_list = current_data.feeds_list;
+            if current_feeds_list.is_none() {
+                return followup.content("No subscription.");
+            }
 
-        for feed in current_feeds_list.unwrap() {
-            opml.add_feed(Url::parse(&feed).unwrap().host_str().unwrap(), &feed);
-        }
-    } else {
-        return followup.content("No subscription.");
-    }
+            for feed in current_feeds_list.unwrap() {
+                opml.add_feed(Url::parse(&feed).unwrap().host_str().unwrap(), &feed);
+            }
 
-    let attachment =
-        CreateAttachment::bytes(opml.to_string().unwrap().as_bytes(), "DiscoRSS_Export.OPML");
+            CreateAttachment::bytes(opml.to_string().unwrap().as_bytes(), "DiscoRSS_Export.OPML")
+        }
+        None => return followup.content("No subscription."),
+    };
 
     followup.add_file(attachment)
 }
