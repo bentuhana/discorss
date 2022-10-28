@@ -409,9 +409,9 @@ dependencies = [
 
 [[package]]
 name = "hard-xml"
-version = "1.13.0"
+version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3477ce594ff6d821c38fc3f8d28744b9bac0340c94b152ebb0f8a1fd5b740f54"
+checksum = "0d04794da34d929a92e4d2f2582935ea36ca6af5bb7e784ac49d47ec74106419"
 dependencies = [
  "hard-xml-derive",
  "jetscii",
@@ -422,9 +422,9 @@ dependencies = [
 
 [[package]]
 name = "hard-xml-derive"
-version = "1.13.0"
+version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3aa4585e2b133d2479ff3f03febd76972234cc04b40cdb374fab11a7f7b797ca"
+checksum = "61629672ff725fa40aa193f58c43e1660a191a58f6af56b86c0316b1440cb0ee"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -519,9 +519,9 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.51"
+version = "0.1.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5a6ef98976b22b3b7f2f3a806f858cb862044cfa66805aa3ad84cb3d3b785ed"
+checksum = "c422fb4f6e80490d0afcacf5c3de2c22ab8e631e0cd7cb2d4a3baf844720a52a"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -1004,7 +1004,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#5ff1a2a0a619e91842144256001bf2664edbb9c1"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#fd2ff260adbe0b32bb2c149b529b1636948cbc21"
 dependencies = [
  "async-trait",
  "base64",
