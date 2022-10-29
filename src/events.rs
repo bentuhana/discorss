@@ -29,6 +29,7 @@ impl EventHandler for Events {
                 "unsubscribe" => {
                     commands::unsubscribe::run(&command.data.options(), &command).await
                 }
+                "subscriptions" => commands::subscriptions::run(&command.data.options(), &command),
                 "import" => commands::import::run(&command.data.options(), &command).await,
                 "export" => commands::export::run(&command.data.options(), &command),
                 cmd => CreateInteractionResponseFollowup::new()
@@ -81,6 +82,7 @@ impl EventHandler for Events {
             commands::unset::channel::register(),
             commands::subscribe::register(),
             commands::unsubscribe::register(),
+            commands::subscriptions::register(),
             commands::import::register(),
             commands::export::register(),
         ];
