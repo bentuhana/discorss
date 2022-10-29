@@ -8,7 +8,7 @@ use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::{ResolvedOption, ResolvedValue};
 use serenity::model::prelude::CommandInteraction;
 
-use crate::database::Database;
+use crate::database;
 use crate::feed::FeedUtils;
 use crate::structs::feed::ServerData;
 
@@ -18,7 +18,7 @@ pub async fn run(
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
 
-    let mut db = Database::load(None);
+    let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
 
     let followup_content = match db.get::<ServerData>(&guild_id) {
@@ -82,7 +82,7 @@ pub async fn run(
 
 pub fn autocomplete(interaction: &CommandInteraction) -> CreateAutocompleteResponse {
     let autocomplete = CreateAutocompleteResponse::new();
-    let db = Database::load(None);
+    let db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
 
     let feeds_list = match db.get::<ServerData>(&guild_id) {

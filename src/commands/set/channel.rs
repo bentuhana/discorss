@@ -8,7 +8,7 @@ use serenity::model::prelude::{ChannelType, CommandInteraction};
 use serenity::model::webhook::Webhook;
 use serenity::prelude::Context;
 
-use crate::database::Database;
+use crate::database;
 use crate::structs::feed::{FeedWebhook, ServerData};
 
 pub async fn run(
@@ -18,7 +18,7 @@ pub async fn run(
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
 
-    let mut db = Database::load(None);
+    let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
     let ResolvedValue::SubCommand(sub_command) = &options.get(0).unwrap().value else { return followup.content("Select a subcommand."); };
     let ResolvedValue::Channel(channel) = sub_command.get(0).unwrap().value else { return followup.content("Mention a channel to set."); };

@@ -5,7 +5,7 @@ use serenity::model::prelude::CommandInteraction;
 use serenity::model::webhook::Webhook;
 use serenity::prelude::Context;
 
-use crate::database::Database;
+use crate::database;
 use crate::structs::feed::ServerData;
 
 pub async fn run(
@@ -15,7 +15,7 @@ pub async fn run(
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
 
-    let mut db = Database::load(None);
+    let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
 
     let data = match db.get::<ServerData>(&guild_id) {

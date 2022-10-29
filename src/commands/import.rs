@@ -5,7 +5,7 @@ use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::{ResolvedOption, ResolvedValue};
 use serenity::model::prelude::CommandInteraction;
 
-use crate::database::Database;
+use crate::database;
 use crate::structs::feed::ServerData;
 
 pub async fn run(
@@ -14,7 +14,7 @@ pub async fn run(
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
 
-    let mut db = Database::load(None);
+    let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
     let ResolvedValue::Attachment(file) = &options.get(0).unwrap().value else { return followup.content("String value not found"); };
 

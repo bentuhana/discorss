@@ -11,10 +11,8 @@ extern crate tracing;
 mod events;
 use events::Events;
 
-mod database;
-use database::Database;
-
 mod commands;
+mod database;
 mod feed;
 mod logger;
 mod structs;
@@ -23,7 +21,7 @@ mod structs;
 async fn main() {
     dotenv().ok();
 
-    logger::Logger::set_logger().unwrap();
+    logger::set_logger().unwrap();
 
     let token = env::var("BOT_TOKEN").expect("Expected BOT_TOKEN environment variable.");
     let intents = GatewayIntents::GUILDS | GatewayIntents::GUILD_WEBHOOKS;
@@ -42,7 +40,7 @@ async fn main() {
 
     let database_file_path =
         env::var("DATABASE_FILE_PATH").unwrap_or_else(|_| "./data/database.json".to_string());
-    if let Err(why) = Database::new(database_file_path) {
+    if let Err(why) = database::new(database_file_path) {
         error!("Error occurred when creating database file. {:#?}", why);
     }
 
