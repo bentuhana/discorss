@@ -10,7 +10,7 @@ pub fn run(options: &[i64], interaction: &CommandInteraction) -> CreateInteracti
     let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
 
-    let minutes = options.get(0).unwrap();
+    let minutes = options.first().unwrap();
 
     let data = match db.get::<ServerData>(&guild_id) {
         Some(current_data) => ServerData {

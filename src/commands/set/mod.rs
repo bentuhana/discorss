@@ -19,10 +19,10 @@ pub async fn run(
 
     if sub_command.name == "channel" {
         let ResolvedValue::Channel(channel) = sub_command_value.get(0).unwrap().value else { return followup.content("Mention a channel to set."); };
-        channel::run(&[channel.to_owned()], &ctx, &interaction).await
+        channel::run(&[channel.to_owned()], ctx, interaction).await
     } else if sub_command.name == "interval" {
         let ResolvedValue::Integer(minutes) = sub_command_value.get(0).unwrap().value else { return followup.content("Mention a channel to set."); };
-        set_interval::run(&[minutes.to_owned()], &interaction)
+        set_interval::run(&[minutes.to_owned()], interaction)
     } else {
         followup.content("Sub command not found.")
     }

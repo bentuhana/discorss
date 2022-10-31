@@ -6,9 +6,6 @@ use dotenvy::dotenv;
 use serenity::model::gateway::GatewayIntents;
 use serenity::Client;
 
-#[macro_use(info, warn, error)]
-extern crate tracing;
-
 mod events;
 use events::Events;
 
@@ -17,6 +14,9 @@ mod database;
 mod feed;
 mod logger;
 mod structs;
+
+#[macro_use(info, warn, error)]
+extern crate tracing;
 
 #[tokio::main]
 async fn main() {
