@@ -1,10 +1,5 @@
-use serenity::builder::{
-    CreateCommand, CreateCommandOption, CreateInteractionResponseFollowup, CreateWebhook,
-    EditWebhook,
-};
-use serenity::model::prelude::command::CommandOptionType;
-use serenity::model::prelude::interaction::application_command::{ResolvedOption, ResolvedValue};
-use serenity::model::prelude::{ChannelType, CommandInteraction};
+use serenity::builder::{CreateInteractionResponseFollowup, CreateWebhook, EditWebhook};
+use serenity::model::prelude::{ChannelType, CommandInteraction, PartialChannel};
 use serenity::model::webhook::Webhook;
 use serenity::prelude::Context;
 
@@ -12,7 +7,7 @@ use crate::database;
 use crate::structs::feed::{FeedWebhook, ServerData};
 
 pub async fn run(
-    options: &[ResolvedOption<'_>],
+    options: &[PartialChannel],
     ctx: &Context,
     interaction: &CommandInteraction,
 ) -> CreateInteractionResponseFollowup {
@@ -20,8 +15,8 @@ pub async fn run(
 
     let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
-    let ResolvedValue::SubCommand(sub_command) = &options.get(0).unwrap().value else { return followup.content("Select a subcommand."); };
-    let ResolvedValue::Channel(channel) = sub_command.get(0).unwrap().value else { return followup.content("Mention a channel to set."); };
+
+    let channel = options.get(0).unwrap();
 
     if channel.kind != ChannelType::Text {
         return followup.content("Mentioned channel must be a text channel.");
@@ -91,24 +86,4 @@ pub async fn run(
 
     db.set(&guild_id, &data).unwrap();
     followup.content(format!("Feed updates channel is set to <#{}>.", channel.id))
-}
-
-pub fn register() -> CreateCommand {
-    CreateCommand::new("set")
-        .description("Set an option.")
-        .add_option(
-            CreateCommandOption::new(
-                CommandOptionType::SubCommand,
-                "channel",
-                "Set feed updates channel.",
-            )
-            .add_sub_option(
-                CreateCommandOption::new(
-                    CommandOptionType::Channel,
-                    "channel",
-                    "Channel to send feed updates.",
-                )
-                .required(true),
-            ),
-        )
 }

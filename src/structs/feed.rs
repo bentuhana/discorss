@@ -5,6 +5,7 @@ use serenity::model::prelude::{ChannelId, WebhookId};
 #[serde(rename_all = "camelCase")]
 pub struct ServerData {
     pub feed_channel_id: Option<ChannelId>,
+    pub feed_check_interval: Option<i64>,
     pub feed_webhook: Option<FeedWebhook>,
     pub feeds_list: Option<Vec<String>>,
 }

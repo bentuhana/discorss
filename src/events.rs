@@ -21,7 +21,7 @@ impl EventHandler for Events {
                     commands::latency::run(&command.data.options(), &ctx, &command).await;
                     return;
                 }
-                "set" => commands::set::channel::run(&command.data.options(), &ctx, &command).await,
+                "set" => commands::set::run(&command.data.options(), &ctx, &command).await,
                 "unset" => {
                     commands::unset::channel::run(&command.data.options(), &ctx, &command).await
                 }
@@ -78,7 +78,7 @@ impl EventHandler for Events {
         let registered_commands = Command::get_global_application_commands(&ctx.http).await;
         let commands_to_register = vec![
             commands::latency::register(),
-            commands::set::channel::register(),
+            commands::set::register(),
             commands::unset::channel::register(),
             commands::subscribe::register(),
             commands::unsubscribe::register(),
