@@ -52,7 +52,7 @@ pub async fn run(
                     return followup.content("Entered URL is not valid.");
                 }
 
-                if let Ok(feeds) = FeedUtils::get_subscriptions(&guild_id, &db) {
+                if let Some(feeds) = FeedUtils::get_subscriptions(&guild_id, &db) {
                     if !feeds.contains(&url.to_string()) {
                         return followup.content("Not subscribed to <{url}> already.");
                     }

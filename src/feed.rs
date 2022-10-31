@@ -26,11 +26,11 @@ impl FeedUtils {
         }
     }
 
-    pub fn get_subscriptions(guild_id: &str, db: &PickleDb) -> Result<Vec<String>, ()> {
+    pub fn get_subscriptions(guild_id: &str, db: &PickleDb) -> Option<Vec<String>> {
         if let Some(data) = db.get::<ServerData>(guild_id) {
-            Ok(data.feeds_list.unwrap_or_default())
+            Some(data.feeds_list.unwrap_or_default())
         } else {
-            Err(())
+            None
         }
     }
 }
