@@ -16,8 +16,7 @@ pub async fn run(
     let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
 
-    let channel = options.get(0).unwrap();
-
+    let channel = options.first().unwrap();
     if channel.kind != ChannelType::Text {
         return followup.content("Mentioned channel must be a text channel.");
     }

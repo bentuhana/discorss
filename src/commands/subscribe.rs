@@ -18,7 +18,7 @@ pub async fn run(
 
     let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
-    let ResolvedValue::String(url) = &options.get(0).unwrap().value else { return followup.content("String value not found"); };
+    let ResolvedValue::String(url) = options.first().unwrap().value else { return followup.content("String value not found"); };
 
     if let Ok(url) = Url::parse(url) {
         if !vec!["http", "https"].contains(&url.scheme()) {
@@ -55,11 +55,19 @@ pub async fn run(
             let reason = match err {
                 GetFeedError::AccessError => "Cannot access to given URL.",
                 GetFeedError::ParseError(parse_err) => match parse_err {
-                    ParseFeedError::IoError(_) => "An error occured while reading RSS file. If this keeps happening, please report the issue to the developer.",
-                    ParseFeedError::JsonSerde(_) => "An error occurred while reading JSON content. If this keeps happening, please report the issue to the developer.",
-                    ParseFeedError::JsonUnsupportedVersion(_) => "Unsupported JSON version on feed content.",
+                    ParseFeedError::IoError(io_error) => {
+                        error!("Unexpected IO error :: {io_error}");
+                        "An error occured while reading RSS file. If this keeps happening, please report the issue to the developer."
+                    }
+                    ParseFeedError::JsonSerde(serde_error) => {
+                        error!("Unexpected serde error :: {serde_error}");
+                        "An error occurred while reading JSON content. If this keeps happening, please report the issue to the developer."
+                    }
+                    ParseFeedError::JsonUnsupportedVersion(_) => {
+                        "Unsupported JSON version on feed content."
+                    }
                     ParseFeedError::ParseError(_) => "Entered URL is not an RSS feed.",
-                    ParseFeedError::XmlReader(_) => "RSS content is broken on entered feed."
+                    ParseFeedError::XmlReader(_) => "RSS content is broken on entered feed.",
                 },
             };
 

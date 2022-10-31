@@ -16,7 +16,7 @@ pub async fn run(
 
     let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
-    let ResolvedValue::Attachment(file) = &options.get(0).unwrap().value else { return followup.content("String value not found"); };
+    let ResolvedValue::Attachment(file) = &options.first().unwrap().value else { return followup.content("String value not found"); };
 
     let opml_struct = match file.download().await {
         Ok(content) => match OPML::from_str(&String::from_utf8_lossy(&content)) {
@@ -24,9 +24,17 @@ pub async fn run(
             Err(err) => {
                 let reason = match err {
                     Error::BodyHasNoOutlines => "OPML file has no RSS feed.",
-                    Error::IoError(_) => "An error occurred while reading OPML file. If this keeps happening, please contact to a developer.",
-                    Error::UnsupportedVersion(_) => "Unsupported version or out-of-standard OPML file.",
-                    Error::XmlError(_) => "An error occurred while parsing OPML file. If this keeps happening, please contact to a developer."
+                    Error::IoError(io_error) => {
+                        error!("Unexpected IO error :: {io_error}");
+                        "An error occurred while reading OPML file. If this keeps happening, please contact to a developer."
+                    }
+                    Error::UnsupportedVersion(_) => {
+                        "Unsupported version or out-of-standard OPML file."
+                    }
+                    Error::XmlError(xml_error) => {
+                        error!("Unexpected XML parsing error :: {xml_error}");
+                        "An error occurred while parsing OPML file. If this keeps happening, please contact to a developer."
+                    }
                 };
 
                 return followup.content(format!("Cannot import OPML file. {reason}"));

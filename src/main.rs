@@ -15,7 +15,7 @@ mod feed;
 mod logger;
 mod structs;
 
-#[macro_use(info, warn, error)]
+#[macro_use(info, error)]
 extern crate tracing;
 
 #[tokio::main]
@@ -43,11 +43,11 @@ async fn main() {
         env::var("DATABASE_FILE_PATH").unwrap_or_else(|_| "./data/database.json".to_string());
     if File::open(&database_file_path).is_err() {
         if let Err(why) = database::new(database_file_path) {
-            error!("Error occurred when creating database file. {:#?}", why);
+            error!("Error occurred when creating database file. {why}");
         }
     }
 
     if let Err(why) = client.start().await {
-        error!("Error occurred when starting the client. {:#?}", why);
+        error!("Error occurred when starting the client. {why}");
     }
 }

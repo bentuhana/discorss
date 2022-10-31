@@ -14,14 +14,14 @@ pub async fn run(
 ) -> CreateInteractionResponseFollowup {
     let followup = CreateInteractionResponseFollowup::new();
 
-    let sub_command = &options.get(0).unwrap();
+    let sub_command = &options.first().unwrap();
     let ResolvedValue::SubCommand(sub_command_value) = &sub_command.value else { return followup.content("Enter subcommand.") };
 
     if sub_command.name == "channel" {
-        let ResolvedValue::Channel(channel) = sub_command_value.get(0).unwrap().value else { return followup.content("Mention a channel to set."); };
+        let ResolvedValue::Channel(channel) = sub_command_value.first().unwrap().value else { return followup.content("Mention a channel to set."); };
         channel::run(&[channel.to_owned()], ctx, interaction).await
     } else if sub_command.name == "interval" {
-        let ResolvedValue::Integer(minutes) = sub_command_value.get(0).unwrap().value else { return followup.content("Mention a channel to set."); };
+        let ResolvedValue::Integer(minutes) = sub_command_value.first().unwrap().value else { return followup.content("Mention a channel to set."); };
         set_interval::run(&[minutes.to_owned()], interaction)
     } else {
         followup.content("Sub command not found.")

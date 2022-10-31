@@ -40,13 +40,13 @@ impl EventHandler for Events {
             let thinking_response = CreateInteractionResponse::Defer(thinking_response_data);
 
             if let Err(why) = command.create_response(&ctx.http, thinking_response).await {
-                warn!(
+                error!(
                     "Cannot create thinking instance on command {}: {why}",
                     command.data.name
                 )
             }
             if let Err(why) = command.create_followup(&ctx.http, content).await {
-                warn!(
+                error!(
                     "Cannot respond to thinking instance on command {}: {why}",
                     command.data.name
                 )
@@ -66,7 +66,7 @@ impl EventHandler for Events {
                 )
                 .await
             {
-                warn!(
+                error!(
                     "Cannot create autocomplete on command {}: {why}",
                     command.data.name
                 )
@@ -95,6 +95,6 @@ impl EventHandler for Events {
             }
         }
 
-        info!("Connected to Discord as {}!", ready.user.tag())
+        info!("Connected to Discord as {}!", ready.user.tag());
     }
 }

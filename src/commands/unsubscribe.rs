@@ -21,9 +21,9 @@ pub async fn run(
     let mut db = database::load(None);
     let guild_id = interaction.guild_id.unwrap().to_string();
 
-    let followup_content = match db.get::<ServerData>(&guild_id) {
+    let message = match db.get::<ServerData>(&guild_id) {
         Some(current_data) => {
-            if options.get(0).unwrap().name == "all" {
+            if options.first().unwrap().name == "all" {
                 db.set(
                     &guild_id,
                     &ServerData {
@@ -41,8 +41,8 @@ pub async fn run(
                     return followup.content("Not subscribed already.");
                 }
 
-                let ResolvedValue::SubCommand(from) = &options.get(0).unwrap().value else { return followup.content("Select a subcommand."); };
-                let ResolvedValue::String(url) = from.get(0).unwrap().value else { return followup.content("String value not found"); };
+                let ResolvedValue::SubCommand(from) = &options.first().unwrap().value else { return followup.content("Select a subcommand."); };
+                let ResolvedValue::String(url) = from.first().unwrap().value else { return followup.content("String value not found"); };
 
                 if let Ok(url) = Url::parse(url) {
                     if !vec!["http", "https"].contains(&url.scheme()) {
@@ -77,7 +77,7 @@ pub async fn run(
         None => "No subscription already.".to_string(),
     };
 
-    followup.content(followup_content)
+    followup.content(message)
 }
 
 pub fn autocomplete(interaction: &CommandInteraction) -> CreateAutocompleteResponse {
