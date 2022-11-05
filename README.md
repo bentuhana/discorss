@@ -1,5 +1,7 @@
 # discorss
 
+> although its almost done, i lost my interest in developing this further, so archived.
+
 I just started to learn Rust, expect bad code.
 
 ## todo
